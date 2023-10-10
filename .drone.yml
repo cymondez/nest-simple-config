@@ -1,0 +1,73 @@
+---
+kind: pipeline
+type: docker
+name: default
+steps:
+
+  - name: version info
+    image: node:20.10
+    commands:
+      - export PROJECT_VERSION=$(node -pe "require('./package.json').version")
+  
+  - name: npm insatll
+    image: node:20.10
+    volumes:
+      - name: cache
+        path: /drone/src/node_modules
+    commands:
+      - npm install
+
+  - name: test
+    image: node:20.10
+    volumes:
+      - name: cache
+        path: /drone/src/node_modules
+    commands:
+      - npm run test:e2e
+
+  - name: package build
+    image: node:20.10
+    volumes:
+      - name: cache
+        path: /drone/src/node_modules
+      - name: dist-cache
+        path: /drone/src/dist
+    commands:
+      - npm run build
+  
+  - name: line notify
+    image: appleboy/drone-line
+    settings:
+      channel_secret:
+        from_secret: line_channel_secret
+      channel_token:
+        from_secret: line_channel_token
+      to_room:
+        from_secret: line_room_id
+      message: >
+        ```multi-monitor-decoder```
+        {{#success build.status}}
+          [ *succeeded* ] #{{build.number}}
+        {{else}}
+          [failed] #{{build.number}}
+        {{/success}}
+        
+        ---
+        
+          *build message* :
+            ├─ repo: {{repo}}
+            ├─ branch: {{commit.branch}}
+            ├─ commit author: {{commit.author}}
+            └─ commit message: {{commit.message}} 
+        
+          *release url* :
+            └─ https://gitea.metw.developers-homelab.net/MediaEdge-Taiwan/multi-monitor-decoder/releases
+    when:
+      status:
+      - failure
+      - success
+
+trigger:
+  event:
+  - promote
+  - tag
