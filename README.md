@@ -24,7 +24,9 @@
 
 ## Description
 
-nest-simple-config module for [Nest](https://github.com/nestjs/nest).
+a simple config module for [Nest](https://github.com/nestjs/nest).
+
+This configuration module can use JSON or YAML files as default settings and allow overriding these defaults at runtime using environment variables (similar to ASP.NET Core's Configuration).
 
 ## Installation
 
@@ -34,7 +36,170 @@ nest-simple-config module for [Nest](https://github.com/nestjs/nest).
 
 ## Quick Start
 
-TODO.
+### deafult configuration from file 
+appsettings.json
+
+```json
+{
+    "a": "base",
+    "b": {
+        "c": 123
+    }
+}
+```
+
+
+import in AppModule
+
+```ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { Configuration, SimpleConfigModule } from '../../lib'
+import { join } from 'path';
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+            filename: join(__dirname,'appsettings.json'),
+        }
+    })
+  ],
+})
+export class AppModule {}
+```
+
+
+inject Configuration in other injectable class
+
+```ts
+
+@Injectable()
+export class OtherService {
+  constructor(private readonly config: Configuration) {}
+
+  getA() {
+    return this.config.get('a'); // got a string: 'base'
+  }
+
+  getC() {
+    return this.config.get('b.c'); // got a number: 123
+  }
+
+  getSection() {
+    return this.confg.get('b'); // got a object: { c : 123}
+  }
+}
+
+```
+### environment variables' runtime override (for Docker)
+
+set environment variables
+
+```sh
+# prifix is NestApp, and object path delimiter is '__'
+export NestApp__a='env'
+export NestApp__b__c=789
+
+```
+
+import in AppModule, and set envConfig
+
+```ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { Configuration, SimpleConfigModule } from '../../lib'
+import { join } from 'path';
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+            filename: join(__dirname,'appsettings.json'),
+      },
+      envOptions: {
+          prifix: 'NestApp', // this is default value
+      },
+    })
+  ],
+})
+export class AppModule {}
+```
+
+got override value
+
+```ts
+
+@Injectable()
+export class OtherService {
+  constructor(private readonly config: Configuration) {}
+
+  getA() {
+    return this.config.get('a'); // got a string: 'env'
+  }
+
+  getC() {
+    return this.config.get('b.c'); // got a number: 789
+  }
+}
+```
+
+
+### array override mode
+
+
+appsettings.json
+
+```json
+{
+  "ary": [ 1, 2, 3 ]
+}
+```
+
+appsettings.override.json
+```json
+{
+  "ary": [ 11, 22 ]
+}
+```
+
+import in AppModule, and set envConfig
+
+```ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { Configuration, SimpleConfigModule } from '../../lib'
+import { join } from 'path';
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      arrayMergeMode: 'all', // 'section' or 'all'
+      configFileOptions: {
+            filename: join(__dirname,'appsettings.json'),
+      },
+      envOptions: {
+          prifix: 'NestApp', // this is default value
+      },
+    })
+  ],
+})
+export class AppModule {}
+```
+
+got override array
+
+```ts
+
+@Injectable()
+export class OtherService {
+  constructor(private readonly config: Configuration) {
+
+  }
+  
+  // if select 'section', ary is [11, 22, 3]
+  // if select 'all', ary is [11, 22]
+  getAry() {
+    return this.config.get('ary'); 
+  }
+}
+
+```
+
 
 ## Support
 
