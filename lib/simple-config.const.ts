@@ -1,0 +1,1 @@
+export const CONFIG_OBJECT = 'CONFIG_OBJECT';
