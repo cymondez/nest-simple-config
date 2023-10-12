@@ -11,12 +11,18 @@ describe('AppModule (e2e)', () => {
     let app: INestApplication;
   
     beforeEach(async () => {
+
+      jest.resetModules();
+
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [AppModule],
+        imports: [AppModule.LoadJsonConfigFile()],
       }).compile();
   
       app = moduleFixture.createNestApplication();
       await app.init();
+    });
+
+    it('import ConfigurationModule', () => {
     });
 
     afterEach(async () => {
