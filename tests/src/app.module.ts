@@ -64,4 +64,14 @@ export class AppModule {
         }
     }
 
+    static ChangeKeyPathDlimiter(): DynamicModule{
+        return {
+            module: AppModule,
+            imports: [SimpleConfigModule.forRoot({
+                keyPathDelimiter: '::',
+                configFileOptions: {filename: join(__dirname,'appsettings.json')}
+            })]
+        }
+    }
+
 }

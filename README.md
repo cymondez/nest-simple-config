@@ -53,7 +53,7 @@ import in AppModule
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -105,7 +105,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -163,7 +163,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [

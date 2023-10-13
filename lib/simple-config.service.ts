@@ -1,20 +1,25 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
-import { CONFIG_OBJECT } from ".";
+import { COFIG_OPTIONAL, CONFIG_OBJECT, SimpleConfigOptional } from ".";
 import { flatten } from 'flat';
 import * as _ from 'lodash';
 
 @Injectable({scope: Scope.DEFAULT})
 export class Configuration {
 
-    constructor( @Inject(CONFIG_OBJECT) private readonly configObject: any) {
+    constructor( 
+        @Inject(COFIG_OPTIONAL) private readonly optional: SimpleConfigOptional,
+        @Inject(CONFIG_OBJECT) private readonly configObject: any) {
 
     }
 
     get<T = any>(key: string): T {
-        return _.get(this.configObject, key) as T;
+
+        const k = key.replace(this.optional.keyPathDelimiter as string, '.');
+
+        return _.get(this.configObject, k) as T;
     }
 
     getEntries(): [key: string, value: any][] {
-        return flatten(this.configObject);
+        return flatten(this.configObject, {delimiter: this.optional.keyPathDelimiter});
     }
 }
