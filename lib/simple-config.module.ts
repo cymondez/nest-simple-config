@@ -30,9 +30,9 @@ export class SimpleConfigModule {
             const ext = baseFile.ext !== '' ? baseFile.ext : `.${fileOptions.fileType}`;
             const root = baseFile.dir !== '' ? baseFile.dir : fileOptions.rootPath as string;
     
-            const inculdeMiddleNames = fileOptions.inculdeMiddleNames ?? [];
+            const includeMiddleNames = fileOptions.includeMiddleNames ?? [];
     
-            const allConfigFiles = [undefined, process.env.NODE_ENV, ... inculdeMiddleNames]
+            const allConfigFiles = [undefined, process.env.NODE_ENV, ... includeMiddleNames]
                                 .map( m => {
                                     const filename = m ? [baseFilename, m].join('.') : baseFilename;
                                     const fullFilName = path.join(root, `${filename}${ext}`);
@@ -97,7 +97,7 @@ export class SimpleConfigModule {
         
             const envConf_all = unflatten(inner, { overwrite: true }) as { [k: string]: any} ;
         
-            const envConf = envConf_all[envOptions.prifix as string];
+            const envConf = envConf_all[envOptions.prefix as string];
             
             return envConf;
         }
@@ -142,10 +142,10 @@ export class SimpleConfigModule {
                 fileType: 'json',
                 filename: 'appsettings',
                 rootPath: '.',
-                inculdeMiddleNames: [],
+                includeMiddleNames: [],
             },
             envOptions: {
-                prifix: 'NestApp',
+                prefix: 'NestApp',
                 delimiter: '__'
             },
         } ;

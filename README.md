@@ -36,7 +36,7 @@ This configuration module can use JSON or YAML files as default settings and all
 
 ## Quick Start
 
-### deafult configuration from file 
+### default configuration from file 
 appsettings.json
 
 ```json
@@ -85,7 +85,7 @@ export class OtherService {
   }
 
   getSection() {
-    return this.confg.get('b'); // got a object: { c : 123}
+    return this.config.get('b'); // got a object: { c : 123}
   }
 }
 
@@ -95,7 +95,7 @@ export class OtherService {
 set environment variables
 
 ```sh
-# prifix is NestApp, and object path delimiter is '__'
+# prefix is NestApp, and object path delimiter is '__'
 export NestApp__a='env'
 export NestApp__b__c=789
 
@@ -114,7 +114,7 @@ import { join } from 'path';
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prifix: 'NestApp', // this is default value
+          prefix: 'NestApp', // this is default value
       },
     })
   ],
@@ -173,7 +173,7 @@ import { join } from 'path';
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prifix: 'NestApp', // this is default value
+          prefix: 'NestApp', // this is default value
       },
     })
   ],

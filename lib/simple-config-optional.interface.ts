@@ -17,11 +17,11 @@ export interface ConfigurationFileOptions {
     fileType?: FileType;
     rootPath?: string; // __dirname
     filename?: string; // appsettings.{}.json
-    inculdeMiddleNames?: string[];
+    includeMiddleNames?: string[];
 }
 
 export interface EnvironmentOptions {
-    prifix?: string; // NestApp
+    prefix?: string; // NestApp
     delimiter?: string; // __
 
 }

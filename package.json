@@ -1,6 +1,6 @@
 {
     "name": "@mediaedge4tw/nest-simple-config",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "nest-simple-config for nestjs module",
     "author": "Cymon Dez",
     "license": "MIT",
@@ -82,5 +82,10 @@
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
-    }
+    },
+    "keywords": [
+        "nestjs",
+        "nest",
+        "config"
+    ]
 }
