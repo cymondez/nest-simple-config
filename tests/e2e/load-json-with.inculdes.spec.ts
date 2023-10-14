@@ -29,7 +29,6 @@ describe('Load json config file with include middle names', () => {
     //     "a": "override",
     //     "b": {
     //         "c": 456,
-    //         "d": 123
     //     },
     //     "ary": [11, 22] 
     // }
@@ -40,7 +39,7 @@ describe('Load json config file with include middle names', () => {
     beforeEach(async () => {
 
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [AppModule.LoadInculdesJsonConfigFile()],
+        imports: [AppModule.LoadIncludesJsonConfigFile()],
       }).compile();
   
       app = moduleFixture.createNestApplication();
@@ -49,10 +48,15 @@ describe('Load json config file with include middle names', () => {
       configuration = app.get(Configuration);
     });
 
-    it('get config a , vaule should be "override" ', () => {
+    it('get config a , value should be "override" ', () => {
         const a =  configuration.get<string>('a');
         expect(a).toEqual("override");
     });
+
+    it('get config b.d , value should be  123 of appsetting.test.json  ', () => {
+      const d =  configuration.get<string>('b.d');
+      expect(d).toEqual(123);
+  });
 
     it('get override ary section', () => {
       const ary =  configuration.get('ary');

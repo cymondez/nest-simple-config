@@ -1,6 +1,6 @@
 {
     "name": "@mediaedge4tw/nest-simple-config",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "nest-simple-config for nestjs module",
     "author": "Cymon Dez",
     "license": "MIT",

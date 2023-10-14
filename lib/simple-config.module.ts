@@ -1,5 +1,5 @@
 import { Module, DynamicModule } from '@nestjs/common';
-import { COFIG_OPTIONAL, CONFIG_OBJECT, Configuration, ConfigurationFileOptions, EnvironmentOptions, SimpleConfigOptional} from '.';
+import { COFIG_OPTIONAL as CONFIG_OPTIONAL, CONFIG_OBJECT, Configuration, ConfigurationFileOptions, EnvironmentOptions, SimpleConfigOptional} from '.';
 
 import * as _ from 'lodash';
 import { unflatten } from 'flat';
@@ -108,7 +108,7 @@ export class SimpleConfigModule {
             global: true,
             providers: [
                 {
-                    provide: COFIG_OPTIONAL,
+                    provide: CONFIG_OPTIONAL,
                     useValue: options,
                 },
                 {
@@ -126,7 +126,7 @@ export class SimpleConfigModule {
                 {
                     provide: Configuration,
                     useFactory: (optional: SimpleConfigOptional , config: any) => new Configuration(optional, config),
-                    inject: [COFIG_OPTIONAL, CONFIG_OBJECT]
+                    inject: [CONFIG_OPTIONAL, CONFIG_OBJECT]
                 },
             ],
             exports: [Configuration],

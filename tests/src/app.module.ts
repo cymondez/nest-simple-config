@@ -23,13 +23,13 @@ export class AppModule {
         }
     }
 
-    static LoadInculdesJsonConfigFile(): DynamicModule{
+    static LoadIncludesJsonConfigFile(): DynamicModule{
         return {
             module: AppModule,
             imports: [SimpleConfigModule.forRoot({
                 configFileOptions: {
                     filename: join(__dirname ,'settings' ,'appsettings.json'),
-                    inculdeMiddleNames: ['override']
+                    includeMiddleNames: ['override']
                 }
             })]
         }
@@ -42,7 +42,7 @@ export class AppModule {
                 arrayMergeMode: 'all',
                 configFileOptions: {
                     filename: join(__dirname ,'settings' ,'appsettings.json'),
-                    inculdeMiddleNames: ['override']
+                    includeMiddleNames: ['override']
                 }
             })]
         }
@@ -57,7 +57,7 @@ export class AppModule {
                         filename: join(__dirname ,'settings' ,'appsettings.json'),
                     },
                     envOptions: {
-                        prifix: 'App',
+                        prefix: 'App',
                     }
                 })
             ],
