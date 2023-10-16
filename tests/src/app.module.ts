@@ -79,6 +79,8 @@ export class AppModule {
             module: AppModule,
             imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
 
+                // The later you add, the higher the priority.
+                // And you can implement custom ConfigurationProviders by yourself
                 builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
                        .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`)))
                        .add(new EnvConfigurationProvider({prefix: 'App'}));
