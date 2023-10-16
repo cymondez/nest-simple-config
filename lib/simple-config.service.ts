@@ -1,5 +1,5 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
-import { COFIG_OPTIONAL, CONFIG_OBJECT, SimpleConfigOptional } from ".";
+import { CONFIG_OPTIONAL, CONFIG_OBJECT, SimpleConfigOptional } from ".";
 import { flatten } from 'flat';
 import * as _ from 'lodash';
 
@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 export class Configuration {
 
     constructor( 
-        @Inject(COFIG_OPTIONAL) private readonly optional: SimpleConfigOptional,
+        @Inject(CONFIG_OPTIONAL) private readonly optional: SimpleConfigOptional,
         @Inject(CONFIG_OBJECT) private readonly configObject: any) {
 
     }

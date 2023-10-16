@@ -199,7 +199,23 @@ export class OtherService {
 }
 
 ```
+### using ConfigurationBuilder
 
+```ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { Configuration, SimpleConfigModule, DefaultEnvOptions
+        ,JsonConfigurationProvider, EnvConfigurationProvider } from '@mediaedge4tw/nest-simple-config'
+import { join } from 'path';
+@Module({
+  imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+
+      builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
+              .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`)))
+              .add(new EnvConfigurationProvider({prefix: 'App'}));
+  })],
+})
+export class AppModule {}
+```
 
 ## Support
 

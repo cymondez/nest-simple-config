@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, DefaultEnvOptions, EnvConfigurationProvider, JsonConfigurationProvider, SimpleConfigModule } from '../../lib'
 import { join } from 'path';
 @Module({
 })
@@ -64,12 +64,24 @@ export class AppModule {
         }
     }
 
-    static ChangeKeyPathDlimiter(): DynamicModule{
+    static ChangeKeyPathDelimiter(): DynamicModule{
         return {
             module: AppModule,
             imports: [SimpleConfigModule.forRoot({
                 keyPathDelimiter: '::',
                 configFileOptions: {filename: join(__dirname,'appsettings.json')}
+            })]
+        }
+    }
+
+    static UsingConfigurationBuilder(): DynamicModule {
+        return {
+            module: AppModule,
+            imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+
+                builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
+                       .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`)))
+                       .add(new EnvConfigurationProvider({prefix: 'App'}));
             })]
         }
     }

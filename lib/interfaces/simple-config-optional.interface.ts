@@ -1,10 +1,12 @@
 
 export type ArrayMergeMode = 'section' | 'all';
-export interface SimpleConfigOptional {
 
+export interface ConfigurationBuilderOption {
     keyPathDelimiter?: string; // '.'
-
     arrayMergeMode?: ArrayMergeMode; // 'section
+}
+
+export interface SimpleConfigOptional extends ConfigurationBuilderOption {
 
     configFileOptions?: ConfigurationFileOptions;
 

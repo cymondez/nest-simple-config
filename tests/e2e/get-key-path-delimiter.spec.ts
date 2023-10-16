@@ -21,7 +21,7 @@ describe('get key with change path delimiter ', () => {
     beforeEach(async () => {
 
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [AppModule.ChangeKeyPathDlimiter()],
+        imports: [AppModule.ChangeKeyPathDelimiter()],
       }).compile();
   
       app = moduleFixture.createNestApplication();
