@@ -9,7 +9,7 @@ steps:
     commands:
       - export PROJECT_VERSION=$(node -pe "require('./package.json').version")
   
-  - name: npm insatll
+  - name: npm install
     image: node:20.10
     volumes:
       - name: cache
