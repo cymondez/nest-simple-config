@@ -30,7 +30,7 @@ export class SimpleConfigModule {
         
         buildAction =  buildAction  ?? ((b: ConfigurationBuilder)=> {
             b.add(new JsonConfigurationProvider(path.join(__dirname,'appsettings.json')));
-            b.add(new JsonConfigurationProvider(path.join(__dirname,`appsettings.${process.env.NODE_ENV}.json`)));
+            b.add(new JsonConfigurationProvider(path.join(__dirname,`appsettings.${process.env.NODE_ENV}.json`), true));
             b.add(new EnvConfigurationProvider(defaultOptions.envOptions ));
         });
 

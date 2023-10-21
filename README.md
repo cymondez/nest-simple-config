@@ -210,7 +210,7 @@ import { join } from 'path';
   imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
 
       builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
-              .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`)))
+              .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`), true))
               .add(new EnvConfigurationProvider({prefix: 'App'}));
   })],
 })

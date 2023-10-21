@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Server } from 'http';
-import { Configuration } from '../../lib';
+import { Configuration } from '../../../lib';
 
 describe('Load json config file with include middle names', () => {
 
@@ -29,7 +29,6 @@ describe('Load json config file with include middle names', () => {
     //     "a": "override",
     //     "b": {
     //         "c": 456,
-    //         "d": 123
     //     },
     //     "ary": [11, 22] 
     // }
@@ -40,7 +39,7 @@ describe('Load json config file with include middle names', () => {
     beforeEach(async () => {
 
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [AppModule.ArrayAllOverride()],
+        imports: [AppModule.LoadIncludesJsonConfigFile()],
       }).compile();
   
       app = moduleFixture.createNestApplication();
@@ -49,14 +48,19 @@ describe('Load json config file with include middle names', () => {
       configuration = app.get(Configuration);
     });
 
-    it('get config a , vaule should be "override" ', () => {
+    it('get config a , value should be "override" ', () => {
         const a =  configuration.get<string>('a');
         expect(a).toEqual("override");
     });
 
-    it('get override ary all, not section', () => {
+    it('get config b.d , value should be  123 of appsetting.test.json  ', () => {
+      const d =  configuration.get<string>('b.d');
+      expect(d).toEqual(123);
+  });
+
+    it('get override ary section', () => {
       const ary =  configuration.get('ary');
-      expect(ary).toEqual([11, 22] );
+      expect(ary).toEqual([11, 22, 3] );
     });
 
     afterEach(async () => {

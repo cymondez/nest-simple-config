@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Server } from 'http';
-import { Configuration } from '../../lib';
+import { Configuration } from '../../../lib';
 describe('Using ConfigurationBuilder', () => {
 
     // appsettings.json
@@ -49,7 +49,7 @@ describe('Using ConfigurationBuilder', () => {
         configuration = app.get(Configuration);
     });
 
-    it('get config a , vaule should be "env_override" ', () => {
+    it('get config a , value should be "env_override" ', () => {
         const a = configuration.get<string>('a');
         expect(a).toEqual("env_override");
     });

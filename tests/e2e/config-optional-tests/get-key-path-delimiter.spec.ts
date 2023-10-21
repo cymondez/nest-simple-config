@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Server } from 'http';
-import { Configuration } from '../../lib';
+import { Configuration } from '../../../lib';
 
 describe('get key with change path delimiter ', () => {
 
