@@ -1,5 +1,5 @@
 import { Inject, Injectable, Scope } from "@nestjs/common";
-import { CONFIG_OPTIONAL, CONFIG_OBJECT, SimpleConfigOptional } from ".";
+import { CONFIG_OPTIONAL, CONFIG_OBJECT, ConfigurationBuilderOption } from ".";
 import { flatten } from 'flat';
 import * as _ from 'lodash';
 
@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 export class Configuration {
 
     constructor( 
-        @Inject(CONFIG_OPTIONAL) private readonly optional: SimpleConfigOptional,
+        @Inject(CONFIG_OPTIONAL) private readonly optional: ConfigurationBuilderOption,
         @Inject(CONFIG_OBJECT) private readonly configObject: any) {
 
     }
@@ -16,7 +16,9 @@ export class Configuration {
 
         const k = key.replace(this.optional.keyPathDelimiter as string, '.');
 
-        return _.get(this.configObject, k) as T;
+        const section = _.get(this.configObject, k) ;
+
+        return _.cloneDeep(section) as T;
     }
 
     getEntries(): [key: string, value: any][] {
