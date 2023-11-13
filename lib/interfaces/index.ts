@@ -1,0 +1,1 @@
+export * from './simple-config-optional.interface'

@@ -1,3 +1,8 @@
+# vscode
+.devcontainer
+.vscode
+
+
 # source
 lib
 tests
@@ -18,3 +23,4 @@ renovate.json
 
 # ci
 .circleci
+.drone.yml

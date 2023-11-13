@@ -1,1 +1,2 @@
 export const CONFIG_OBJECT = 'CONFIG_OBJECT';
+export const CONFIG_OPTIONAL = 'CONFIG_OPTIONAL';

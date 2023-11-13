@@ -1,10 +1,12 @@
 
 export type ArrayMergeMode = 'section' | 'all';
-export interface SimpleConfigOptional {
 
+export interface ConfigurationBuilderOption {
     keyPathDelimiter?: string; // '.'
-
     arrayMergeMode?: ArrayMergeMode; // 'section
+}
+
+export interface SimpleConfigOptional extends ConfigurationBuilderOption {
 
     configFileOptions?: ConfigurationFileOptions;
 
@@ -17,11 +19,11 @@ export interface ConfigurationFileOptions {
     fileType?: FileType;
     rootPath?: string; // __dirname
     filename?: string; // appsettings.{}.json
-    inculdeMiddleNames?: string[];
+    includeMiddleNames?: string[];
 }
 
 export interface EnvironmentOptions {
-    prifix?: string; // NestApp
+    prefix?: string; // NestApp
     delimiter?: string; // __
 
 }

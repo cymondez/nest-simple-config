@@ -36,7 +36,7 @@ This configuration module can use JSON or YAML files as default settings and all
 
 ## Quick Start
 
-### deafult configuration from file 
+### default configuration from file 
 appsettings.json
 
 ```json
@@ -53,7 +53,7 @@ import in AppModule
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -85,7 +85,7 @@ export class OtherService {
   }
 
   getSection() {
-    return this.confg.get('b'); // got a object: { c : 123}
+    return this.config.get('b'); // got a object: { c : 123}
   }
 }
 
@@ -95,7 +95,7 @@ export class OtherService {
 set environment variables
 
 ```sh
-# prifix is NestApp, and object path delimiter is '__'
+# prefix is NestApp, and object path delimiter is '__'
 export NestApp__a='env'
 export NestApp__b__c=789
 
@@ -105,7 +105,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -114,7 +114,7 @@ import { join } from 'path';
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prifix: 'NestApp', // this is default value
+          prefix: 'NestApp', // this is default value
       },
     })
   ],
@@ -163,7 +163,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -173,7 +173,7 @@ import { join } from 'path';
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prifix: 'NestApp', // this is default value
+          prefix: 'NestApp', // this is default value
       },
     })
   ],
@@ -199,7 +199,23 @@ export class OtherService {
 }
 
 ```
+### using ConfigurationBuilder
 
+```ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { Configuration, SimpleConfigModule, DefaultEnvOptions
+        ,JsonConfigurationProvider, EnvConfigurationProvider } from '@mediaedge4tw/nest-simple-config'
+import { join } from 'path';
+@Module({
+  imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+
+      builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
+              .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`), true))
+              .add(new EnvConfigurationProvider({prefix: 'App'}));
+  })],
+})
+export class AppModule {}
+```
 
 ## Support
 

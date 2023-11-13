@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '../../lib'
+import { Configuration, DefaultEnvOptions, EnvConfigurationProvider, JsonConfigurationProvider, SimpleConfigModule } from '../../lib'
 import { join } from 'path';
 @Module({
 })
@@ -23,13 +23,13 @@ export class AppModule {
         }
     }
 
-    static LoadInculdesJsonConfigFile(): DynamicModule{
+    static LoadIncludesJsonConfigFile(): DynamicModule{
         return {
             module: AppModule,
             imports: [SimpleConfigModule.forRoot({
                 configFileOptions: {
                     filename: join(__dirname ,'settings' ,'appsettings.json'),
-                    inculdeMiddleNames: ['override']
+                    includeMiddleNames: ['override']
                 }
             })]
         }
@@ -42,7 +42,7 @@ export class AppModule {
                 arrayMergeMode: 'all',
                 configFileOptions: {
                     filename: join(__dirname ,'settings' ,'appsettings.json'),
-                    inculdeMiddleNames: ['override']
+                    includeMiddleNames: ['override']
                 }
             })]
         }
@@ -57,10 +57,48 @@ export class AppModule {
                         filename: join(__dirname ,'settings' ,'appsettings.json'),
                     },
                     envOptions: {
-                        prifix: 'App',
+                        prefix: 'App',
                     }
                 })
             ],
+        }
+    }
+
+    static ChangeKeyPathDelimiter(): DynamicModule{
+        return {
+            module: AppModule,
+            imports: [SimpleConfigModule.forRoot({
+                keyPathDelimiter: '::',
+                configFileOptions: {filename: join(__dirname,'appsettings.json')}
+            })]
+        }
+    }
+
+    static UsingConfigurationBuilder(): DynamicModule {
+        return {
+            module: AppModule,
+            imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+
+                // The later you add, the higher the priority.
+                // And you can implement custom ConfigurationProviders by yourself
+                builder.add(new JsonConfigurationProvider(join(__dirname, 'settings', 'appsettings.json')))
+                       .add(new JsonConfigurationProvider(join(__dirname, 'settings', `appsettings.${process.env.NODE_ENV}.json`), true))
+                       .add(new EnvConfigurationProvider({prefix: 'App'}));
+            })]
+        }
+    }
+
+    static testFileConfigurationProviderOptional(): DynamicModule {
+        return {
+            module: AppModule,
+            imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+
+                // The later you add, the higher the priority.
+                // And you can implement custom ConfigurationProviders by yourself
+                builder.add(new JsonConfigurationProvider(join(__dirname, 'appsettings.json')))
+                       .add(new JsonConfigurationProvider(join(__dirname, `appsettings.${process.env.NODE_ENV}.json`), true))
+                       .add(new EnvConfigurationProvider({prefix: 'App'}));
+            })]
         }
     }
 
