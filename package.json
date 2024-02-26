@@ -1,10 +1,10 @@
 {
     "name": "@mediaedge4tw/nest-simple-config",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "nest-simple-config for nestjs module",
     "author": "Cymon Dez",
     "license": "MIT",
-    "url": "https://gitea.metw.developers-homelab.net/MediaEdge-Taiwan/nest-simple-config",
+    "url": "https://github.com/cymondez/nest-simple-config",
     "scripts": {
         "build": "rimraf -rf dist && tsc -p tsconfig.json",
         "format": "prettier --write \"{lib,test}/**/*.ts\"",
@@ -48,7 +48,7 @@
         "lint-staged": "13.2.3",
         "playwright": "^1.37.0",
         "prettier": "3.0.1",
-        "reflect-metadata": "0.1.13",
+        "reflect-metadata": "^0.1.13",
         "release-it": "16.1.4",
         "rimraf": "^5.0.1",
         "supertest": "^6.3.3",
@@ -61,8 +61,7 @@
         "lodash": "^4.17.21"
     },
     "peerDependencies": {
-        "@nestjs/common": "^8.0.0 || ^9.0.0 || ^10.0.0",
-        "reflect-metadata": "^0.1.13"
+        "@nestjs/common": "^8.0.0 || ^9.0.0 || ^10.0.0"
     },
     "lint-staged": {
         "*.ts": [
@@ -77,7 +76,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://gitea.metw.developers-homelab.net/MediaEdge-Taiwan/nest-simple-config"
+        "url": "https://github.com/cymondez/nest-simple-config"
     },
     "publishConfig": {
         "access": "public",
