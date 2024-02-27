@@ -16,5 +16,8 @@ export class FileConfigurationProvider extends ConfigurationProvider {
         }
         return this.fileLoader(this.filename);
     }
-    
+
+    override toString(): string {
+        return `provider: ${this.constructor.name}, file: ${this.filename}`;
+    }
 }
