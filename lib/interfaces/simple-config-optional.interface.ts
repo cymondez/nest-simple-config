@@ -4,6 +4,8 @@ export type ArrayMergeMode = 'section' | 'all';
 export interface ConfigurationBuilderOption {
     keyPathDelimiter?: string; // '.'
     arrayMergeMode?: ArrayMergeMode; // 'section
+
+    validator?: ConfigValidatorOptions;
 }
 
 export interface SimpleConfigOptional extends ConfigurationBuilderOption {
@@ -13,7 +15,7 @@ export interface SimpleConfigOptional extends ConfigurationBuilderOption {
     envOptions?: EnvironmentOptions;
 }
 
-export type FileType = 'json'|'yaml';
+export type FileType = 'json' | 'yaml';
 
 export interface ConfigurationFileOptions {
     fileType?: FileType;
@@ -26,4 +28,9 @@ export interface EnvironmentOptions {
     prefix?: string; // NestApp
     delimiter?: string; // __
 
+}
+
+export interface ConfigValidatorOptions {
+    validator: (config: any) => void ;
+    checkLevel: 'warn' | 'error' | 'detail' ; // 'error'
 }
