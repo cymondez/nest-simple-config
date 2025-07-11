@@ -1,64 +1,67 @@
-# 🚨 Package Migration Notice
-
-> **Important**: This package has been moved to a new location due to the dissolution of the @mediaedge4tw organization.
-> 
-> **New Package**: `nest-simple-config`
-> 
-> **Please update your dependencies**:
-> ```bash
-> npm uninstall @mediaedge4tw/nest-simple-config
-> npm install nest-simple-config
-> ```
-> 
-> This version (2.0.0) will be the **final release** under the `@mediaedge4tw` namespace. All future updates will be published under the new package name.
-
 # 🔧 NestJS Simple Config
+
+> **Note**: This package was previously published as `@mediaedge4tw/nest-simple-config`. It has been moved to this new location due to organizational changes.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
-
-[travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
-[travis-url]: https://travis-ci.org/nestjs/nest
-[linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
-[linux-url]: https://travis-ci.org/nestjs/nest
 
 <p align="center">
   <strong>A powerful, lightweight, and flexible configuration module for NestJS applications</strong>
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@mediaedge4tw/nest-simple-config">
-    <img src="https://img.shields.io/npm/v/@mediaedge4tw/nest-simple-config.svg" alt="NPM Version" />
+  <a href="https://www.npmjs.com/package/nest-simple-config">
+    <img src="https://img.shields.io/npm/v/nest-simple-config.svg" alt="NPM Version" />
   </a>
-  <a href="https://www.npmjs.com/package/@mediaedge4tw/nest-simple-config">
-    <img src="https://img.shields.io/npm/l/@mediaedge4tw/nest-simple-config.svg" alt="Package License" />
+  <a href="https://www.npmjs.com/package/nest-simple-config">
+    <img src="https://img.shields.io/npm/l/nest-simple-config.svg" alt="Package License" />
   </a>
-  <a href="https://www.npmjs.com/package/@mediaedge4tw/nest-simple-config">
-    <img src="https://img.shields.io/npm/dm/@mediaedge4tw/nest-simple-config.svg" alt="NPM Downloads" />
+  <a href="https://www.npmjs.com/package/nest-simple-config">
+    <img src="https://img.shields.io/npm/dm/nest-simple-config.svg" alt="NPM Downloads" />
   </a>
   <a href="https://github.com/cymondez/nest-simple-config">
     <img src="https://img.shields.io/github/stars/cymondez/nest-simple-config.svg?style=social&label=Star" alt="GitHub Stars" />
   </a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## ✨ Why Choose NestJS Simple Config?
 
-a simple config module for [Nest](https://github.com/nestjs/nest).
+Inspired by ASP.NET Core's configuration system, this module brings familiar and powerful configuration management to your NestJS applications:
 
-This configuration module can use JSON or YAML files as default settings and allow overriding these defaults at runtime using environment variables (similar to ASP.NET Core's Configuration).
+### 🚀 **[Simple & Intuitive](#-basic-configuration)**
+- **Easy setup** with JSON and YAML support
+- **Zero learning curve** for developers familiar with ASP.NET Core
+- **Minimal dependencies** and lightweight footprint
 
-## Installation
+### 🔄 **[Multi-Configuration Support](#-configuration-override)**
+- **Multiple configuration files** with customizable priority
+- **Environment-specific** configurations (dev, staging, prod)
+- **Flexible override** system for different deployment scenarios
+
+### 🐳 **[Container-Ready](#-environment-variables-override)**
+- **Perfect for Docker** and Kubernetes deployments
+- **Runtime configuration** override using environment variables
+- **Hierarchical configuration** with dot notation support
+
+### 🔒 **[Type-Safe Configuration](#-typed-configuration-options)**
+- **Option injection** for configuration sections
+- **Compile-time type checking** with TypeScript
+- **Runtime validation** using class-validator decorators
+
+## 📦 Installation
 
 ```bash
- npm i --save @mediaedge4tw/nest-simple-config
+npm i --save nest-simple-config
 ```
 
-## Quick Start
+## 🚀 Basic Configuration
 
-### default configuration from file 
-appsettings.json
+### Setup with Configuration Files
+
+Create your configuration file:
+
+**appsettings.json**
 
 ```json
 {
@@ -70,11 +73,11 @@ appsettings.json
 ```
 
 
-import in AppModule
+**Import in your AppModule:**
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
+import { Configuration, SimpleConfigModule } from 'nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -88,8 +91,7 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-
-inject Configuration in other injectable class
+**Inject Configuration in your services:**
 
 ```ts
 
@@ -111,9 +113,9 @@ export class OtherService {
 }
 
 ```
-### environment variables' runtime override (for Docker)
+## 🐳 Environment Variables Override
 
-set environment variables
+Perfect for containerized deployments! Set environment variables to override your configuration at runtime:
 
 ```sh
 # prefix is NestApp, and object path delimiter is '__'
@@ -126,7 +128,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
+import { Configuration, SimpleConfigModule } from 'nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -162,7 +164,11 @@ export class OtherService {
 ```
 
 
-### array override mode
+## 🔄 Configuration Override
+
+### Array Override Modes
+
+Choose how arrays are merged when configurations are overridden:
 
 
 appsettings.json
@@ -184,7 +190,7 @@ import in AppModule, and set envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, SimpleConfigModule } from '@mediaedge4tw/nest-simple-config'
+import { Configuration, SimpleConfigModule } from 'nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [
@@ -225,7 +231,7 @@ export class OtherService {
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
 import { Configuration, SimpleConfigModule, DefaultEnvOptions
-        ,JsonConfigurationProvider, EnvConfigurationProvider } from '@mediaedge4tw/nest-simple-config'
+        ,JsonConfigurationProvider, EnvConfigurationProvider } from 'nest-simple-config'
 import { join } from 'path';
 @Module({
   imports: [SimpleConfigModule.forRootWithConfigBuilder((builder) => {
@@ -238,11 +244,11 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-### Typed Configuration Options
+## 🔒 Typed Configuration Options
 
-> **New in version 2.0.0**: Typed Configuration Options provide enhanced type safety and validation for your configuration objects.
+> **✨ New in version 2.0.0**: Enhanced type safety and validation for your configuration objects.
 
-For better type safety and validation, you can use typed configuration options with class-validator decorators.
+For applications requiring strong typing and validation, you can use typed configuration options with class-validator decorators.
 
 #### Define Configuration Classes
 
@@ -252,7 +258,7 @@ First, create configuration classes with validation decorators:
 // database-options.ts
 import { IsString, IsInt, IsOptional, Min, Max, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BindOption } from '@mediaedge4tw/nest-simple-config';
+import { BindOption } from 'nest-simple-config';
 
 export class ConnectionPoolOptions {
     @IsInt()
@@ -300,7 +306,7 @@ export class DatabaseOptions {
 ```ts
 // server-options.ts
 import { IsString, IsBoolean, IsOptional, IsInt, Min } from 'class-validator';
-import { BindOption } from '@mediaedge4tw/nest-simple-config';
+import { BindOption } from 'nest-simple-config';
 
 @BindOption('server')
 export class ServerOptions {
@@ -355,7 +361,7 @@ Register your typed configuration options in your module:
 
 ```ts
 import { Module } from '@nestjs/common';
-import { SimpleConfigModule } from '@mediaedge4tw/nest-simple-config';
+import { SimpleConfigModule } from 'nest-simple-config';
 import { DatabaseOptions } from './config/database-options';
 import { ServerOptions } from './config/server-options';
 import { join } from 'path';
@@ -379,7 +385,7 @@ Use the `@InjectConfig` decorator to inject strongly-typed configuration:
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { InjectConfig, Options } from '@mediaedge4tw/nest-simple-config';
+import { InjectConfig, Options } from 'nest-simple-config';
 import { DatabaseOptions } from './config/database-options';
 import { ServerOptions } from './config/server-options';
 
@@ -415,9 +421,20 @@ export class MyService {
 - **Runtime Errors**: Clear error messages for invalid configurations
 - **Nested Objects**: Support for complex nested configuration structures
 
-## Support
+## 🤝 Contributing
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+We welcome contributions! If you have ideas for improvements or find any issues:
+
+- 🐛 **Report bugs** by opening an [issue](https://github.com/cymondez/nest-simple-config/issues)
+- 💡 **Suggest features** or improvements
+- 🔧 **Submit pull requests** with bug fixes or new features
+
+## 📧 Support
+
+If you find this package helpful, please consider:
+- ⭐ **Star this repository** on GitHub
+- 📢 **Share it** with other developers
+- 💬 **Report issues** or ask questions in the [Issues](https://github.com/cymondez/nest-simple-config/issues) section
 
 ## License
 
