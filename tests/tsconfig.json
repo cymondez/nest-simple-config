@@ -5,6 +5,8 @@
     "rootDir": "../",
     "strictNullChecks": true,
     "types": ["jest", "node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   },
   "include": [
     "**/*.ts",

@@ -7,3 +7,4 @@ export * from './simple-config.service';
 export * from './simple-config.const';
 export * from './config-builder';
 export * from './exceptions';
+export * from './decorators';

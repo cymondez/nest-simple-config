@@ -9,12 +9,13 @@ import { CONFIG_OPTIONAL, CONFIG_OBJECT,
         FileConfigurationProvider,
         YamlConfigurationProvider,
         definedProps,
-        DefaultSimpleConfigOptions
+        DefaultSimpleConfigOptions,
 } from '.';
 
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ConfigOptionsModule } from './config-options.module';
 @Module({})
 export class SimpleConfigModule {
     public static forRoot(options?: SimpleConfigOptional): DynamicModule {
@@ -133,4 +134,11 @@ export class SimpleConfigModule {
         };
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    public  static registerOptions(optionTypes: Function[]): DynamicModule {
+    return {
+      module: SimpleConfigModule,
+      imports: [ConfigOptionsModule.register(optionTypes)],
+    };
+  }
 } 

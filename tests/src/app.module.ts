@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { Configuration, DefaultEnvOptions, EnvConfigurationProvider, JsonConfigurationProvider, SimpleConfigModule } from '../../lib'
+import { Configuration, EnvConfigurationProvider, JsonConfigurationProvider, SimpleConfigModule } from '../../lib'
 import { join } from 'path';
 @Module({
 })
