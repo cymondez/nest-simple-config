@@ -6,27 +6,28 @@ import { DatabaseOptions } from '../../src/typed-optionals/database-options';
 import { ServerOptions } from '../../src/typed-optionals/server-options';
 
 describe('Typed Configuration Options Integration Tests', () => {
-    let app: INestApplication;
+    let validApp: INestApplication;
     let configService: ConfigTestService;
 
-    describe('Valid Configuration', () => {
-        beforeEach(async () => {
-            const moduleFixture: TestingModule = await Test.createTestingModule({
-                imports: [AppModule.withValidTypedConfig()]
-            }).compile();
+    beforeAll(async () => {
+        // 只創建一次有效配置的應用程序
+        const moduleFixture: TestingModule = await Test.createTestingModule({
+            imports: [AppModule.withValidTypedConfig()]
+        }).compile();
 
-            app = moduleFixture.createNestApplication();
-            await app.init();
+        validApp = moduleFixture.createNestApplication();
+        await validApp.init();
 
-            configService = app.get(ConfigTestService);
-        });
+        configService = validApp.get(ConfigTestService);
+    });
 
-        afterEach(async () => {
-            if (app) {
-                await app.close();
-            }
-        });
+    afterAll(async () => {
+        if (validApp) {
+            await validApp.close();
+        }
+    });
 
+    describe('Configuration Loading and Validation', () => {
         it('should load and validate database configuration', () => {
             const dbConfig = configService.getDatabaseConfig();
 
@@ -57,26 +58,6 @@ describe('Typed Configuration Options Integration Tests', () => {
             expect(serverConfig.environment).toBe('test');
         });
 
-        it('should generate correct connection string from validated config', () => {
-            const connectionString = configService.getConnectionString();
-            expect(connectionString).toBe('postgresql://admin:secret123@localhost:5432/testdb');
-        });
-
-        it('should generate correct server URL from validated config', () => {
-            const serverUrl = configService.getServerUrl();
-            expect(serverUrl).toBe('https://0.0.0.0:3000');
-        });
-
-        it('should ensure configuration is strongly typed', () => {
-            const dbConfig = configService.getDatabaseConfig();
-            const serverConfig = configService.getServerConfig();
-
-            // TypeScript should enforce these types at compile time
-            expect(typeof dbConfig.host).toBe('string');
-            expect(typeof dbConfig.port).toBe('number');
-            expect(typeof serverConfig.ssl).toBe('boolean');
-        });
-
         it('should validate range constraints', () => {
             const dbConfig = configService.getDatabaseConfig();
 
@@ -92,82 +73,15 @@ describe('Typed Configuration Options Integration Tests', () => {
         });
     });
 
-    describe('Invalid Configuration - Validation Errors', () => {
-        it('should throw validation errors for invalid configuration', async () => {
-            let error: Error | undefined;
+    describe('Type Safety and Transformations', () => {
+        it('should ensure configuration is strongly typed', () => {
+            const dbConfig = configService.getDatabaseConfig();
+            const serverConfig = configService.getServerConfig();
 
-            try {
-                const moduleFixture: TestingModule = await Test.createTestingModule({
-                    imports: [AppModule.withInvalidTypedConfig()]
-                }).compile();
-
-                app = moduleFixture.createNestApplication();
-                await app.init();
-            } catch (e) {
-                error = e as Error;
-            }
-
-            expect(error).toBeDefined();
-            expect(error!.message).toContain('Invalid config');
-            
-            // Should contain validation errors for both DatabaseOptions and ServerOptions
-            expect(error!.message).toMatch(/DatabaseOptions|ServerOptions/);
-        });
-    });
-
-    describe('Missing Configuration Section', () => {
-        it('should handle missing configuration sections gracefully', async () => {
-            let error: Error | undefined;
-
-            try {
-                await Test.createTestingModule({
-                    imports: [
-                        // Using a config that doesn't have database/server sections
-                        AppModule.withValidTypedConfig()
-                    ]
-                }).compile();
-
-                // Manually create a module with missing config sections for testing
-                const testModule = Test.createTestingModule({
-                    imports: [
-                        AppModule.withValidTypedConfig()
-                    ]
-                });
-
-                // This should work since we have valid config
-                const compiled = await testModule.compile();
-                app = compiled.createNestApplication();
-                await app.init();
-
-                // If we get here, the configuration was valid
-                expect(app).toBeDefined();
-            } catch (e) {
-                error = e as Error;
-            }
-
-            // If there's an error, it should be descriptive
-            if (error) {
-                expect(error.message).toBeDefined();
-            }
-        });
-    });
-
-    describe('Type Transformation', () => {
-        beforeEach(async () => {
-            const moduleFixture: TestingModule = await Test.createTestingModule({
-                imports: [AppModule.withValidTypedConfig()]
-            }).compile();
-
-            app = moduleFixture.createNestApplication();
-            await app.init();
-
-            configService = app.get(ConfigTestService);
-        });
-
-        afterEach(async () => {
-            if (app) {
-                await app.close();
-            }
+            // TypeScript should enforce these types at compile time
+            expect(typeof dbConfig.host).toBe('string');
+            expect(typeof dbConfig.port).toBe('number');
+            expect(typeof serverConfig.ssl).toBe('boolean');
         });
 
         it('should transform string numbers to actual numbers', () => {
@@ -197,6 +111,41 @@ describe('Typed Configuration Options Integration Tests', () => {
             // These are optional and present
             expect(serverConfig.ssl).toBeDefined();
             expect(serverConfig.environment).toBeDefined();
+        });
+    });
+
+    describe('Service Methods', () => {
+        it('should generate correct connection string from validated config', () => {
+            const connectionString = configService.getConnectionString();
+            expect(connectionString).toBe('postgresql://admin:secret123@localhost:5432/testdb');
+        });
+
+        it('should generate correct server URL from validated config', () => {
+            const serverUrl = configService.getServerUrl();
+            expect(serverUrl).toBe('https://0.0.0.0:3000');
+        });
+    });
+
+    describe('Error Handling', () => {
+        it('should throw validation errors for invalid configuration', async () => {
+            let error: Error | undefined;
+
+            try {
+                const moduleFixture: TestingModule = await Test.createTestingModule({
+                    imports: [AppModule.withInvalidTypedConfig()]
+                }).compile();
+
+                const invalidApp = moduleFixture.createNestApplication();
+                await invalidApp.init();
+            } catch (e) {
+                error = e as Error;
+            }
+
+            expect(error).toBeDefined();
+            expect(error!.message).toContain('Invalid config');
+            
+            // Should contain validation errors for both DatabaseOptions and ServerOptions
+            expect(error!.message).toMatch(/DatabaseOptions|ServerOptions/);
         });
     });
 });
