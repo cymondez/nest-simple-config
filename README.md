@@ -217,6 +217,181 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
+### Typed Configuration Options
+
+For better type safety and validation, you can use typed configuration options with class-validator decorators.
+
+#### Define Configuration Classes
+
+First, create configuration classes with validation decorators:
+
+```ts
+// database-options.ts
+import { IsString, IsInt, IsOptional, Min, Max, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { BindOption } from '@mediaedge4tw/nest-simple-config';
+
+export class ConnectionPoolOptions {
+    @IsInt()
+    @Min(1)
+    @Max(100)
+    min!: number;
+
+    @IsInt()
+    @Min(1)
+    @Max(500)
+    max!: number;
+
+    @IsOptional()
+    @IsInt()
+    @Min(1000)
+    timeout?: number;
+}
+
+@BindOption('database')
+export class DatabaseOptions {
+    @IsString()
+    host!: string;
+
+    @IsInt()
+    @Min(1)
+    @Max(65535)
+    port!: number;
+
+    @IsString()
+    username!: string;
+
+    @IsString()
+    password!: string;
+
+    @IsString()
+    database!: string;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => ConnectionPoolOptions)
+    pool?: ConnectionPoolOptions;
+}
+```
+
+```ts
+// server-options.ts
+import { IsString, IsBoolean, IsOptional, IsInt, Min } from 'class-validator';
+import { BindOption } from '@mediaedge4tw/nest-simple-config';
+
+@BindOption('server')
+export class ServerOptions {
+    @IsString()
+    host!: string;
+
+    @IsInt()
+    @Min(1)
+    port!: number;
+
+    @IsOptional()
+    @IsBoolean()
+    ssl?: boolean;
+
+    @IsOptional()
+    @IsString()
+    environment?: string;
+}
+```
+
+#### Configuration File
+
+Create your configuration file with the corresponding structure:
+
+```json
+// appsettings.json
+{
+    "database": {
+        "host": "localhost",
+        "port": 5432,
+        "username": "admin",
+        "password": "secret123",
+        "database": "myapp",
+        "pool": {
+            "min": 5,
+            "max": 20,
+            "timeout": 30000
+        }
+    },
+    "server": {
+        "host": "0.0.0.0",
+        "port": 3000,
+        "ssl": true,
+        "environment": "production"
+    }
+}
+```
+
+#### Register Options in Module
+
+Register your typed configuration options in your module:
+
+```ts
+import { Module } from '@nestjs/common';
+import { SimpleConfigModule } from '@mediaedge4tw/nest-simple-config';
+import { DatabaseOptions } from './config/database-options';
+import { ServerOptions } from './config/server-options';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+        filename: join(__dirname, 'appsettings.json')
+      }
+    }),
+    SimpleConfigModule.registerOptions([DatabaseOptions, ServerOptions])
+  ],
+})
+export class AppModule {}
+```
+
+#### Inject Typed Configuration
+
+Use the `@InjectConfig` decorator to inject strongly-typed configuration:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { InjectConfig, Options } from '@mediaedge4tw/nest-simple-config';
+import { DatabaseOptions } from './config/database-options';
+import { ServerOptions } from './config/server-options';
+
+@Injectable()
+export class MyService {
+    constructor(
+        @InjectConfig(DatabaseOptions) private readonly dbConfig: Options<DatabaseOptions>,
+        @InjectConfig(ServerOptions) private readonly serverConfig: Options<ServerOptions>
+    ) {}
+
+    getDatabaseConnectionString(): string {
+        const db = this.dbConfig.value;
+        return `postgresql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
+    }
+
+    getServerUrl(): string {
+        const server = this.serverConfig.value;
+        const protocol = server.ssl ? 'https' : 'http';
+        return `${protocol}://${server.host}:${server.port}`;
+    }
+
+    getDatabaseConfig(): DatabaseOptions {
+        return this.dbConfig.value; // Fully typed and validated
+    }
+}
+```
+
+#### Benefits
+
+- **Type Safety**: Full TypeScript support with compile-time type checking
+- **Validation**: Automatic validation using class-validator decorators
+- **Auto-completion**: IDE support for configuration properties
+- **Runtime Errors**: Clear error messages for invalid configurations
+- **Nested Objects**: Support for complex nested configuration structures
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
