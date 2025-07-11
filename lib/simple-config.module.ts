@@ -135,10 +135,13 @@ export class SimpleConfigModule {
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public  static registerOptions(optionTypes: Function[]): DynamicModule {
-    return {
-      module: SimpleConfigModule,
-      imports: [ConfigOptionsModule.register(optionTypes)],
-    };
-  }
+    public static registerOptions(optionTypes: Function[]): DynamicModule {
+        const configOptionsModule = ConfigOptionsModule.register(optionTypes);
+        return {
+            module: SimpleConfigModule,
+            imports: [configOptionsModule],
+            providers: configOptionsModule.providers,
+            exports: configOptionsModule.exports,
+        };
+    }
 } 

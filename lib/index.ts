@@ -8,3 +8,5 @@ export * from './simple-config.const';
 export * from './config-builder';
 export * from './exceptions';
 export * from './decorators';
+export * from './types/options';
+export * from './config-options.module';

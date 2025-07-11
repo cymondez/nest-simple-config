@@ -1,6 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { Configuration, EnvConfigurationProvider, JsonConfigurationProvider, SimpleConfigModule } from '../../lib'
 import { join } from 'path';
+import { DatabaseOptions } from './typed-optionals/database-options';
+import { ServerOptions } from './typed-optionals/server-options';
+import { ConfigTestService } from './typed-optionals/config-test.service';
 @Module({
 })
 export class AppModule { 
@@ -100,6 +103,39 @@ export class AppModule {
                        .add(new EnvConfigurationProvider({prefix: 'App'}));
             })]
         }
+    }
+
+    // Typed Optional Configuration Tests
+    static withValidTypedConfig(): DynamicModule {
+        return {
+            module: AppModule,
+            imports: [
+                SimpleConfigModule.forRoot({
+                    configFileOptions: {
+                        filename: join(__dirname, 'settings', 'appsettings.valid.json')
+                    }
+                }),
+                SimpleConfigModule.registerOptions([DatabaseOptions, ServerOptions])
+            ],
+            providers: [ConfigTestService],
+            exports: [ConfigTestService]
+        };
+    }
+
+    static withInvalidTypedConfig(): DynamicModule {
+        return {
+            module: AppModule,
+            imports: [
+                SimpleConfigModule.forRoot({
+                    configFileOptions: {
+                        filename: join(__dirname, 'settings', 'appsettings.invalid.json')
+                    }
+                }),
+                SimpleConfigModule.registerOptions([DatabaseOptions, ServerOptions])
+            ],
+            providers: [ConfigTestService],
+            exports: [ConfigTestService]
+        };
     }
 
 }
