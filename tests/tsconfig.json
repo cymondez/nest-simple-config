@@ -3,13 +3,18 @@
   "skipLibCheck": true,
   "compilerOptions": {
     "rootDir": "../",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "types": ["jest", "node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   },
   "include": [
+    "**/*.ts",
     "**/*.spec.ts",
+    "../src/**/*",
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "../node_modules",
+    "../dist"
   ]
 }

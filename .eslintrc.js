@@ -2,7 +2,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
-    project: './tsconfig.json',
+    project: ['./tsconfig.json', './tests/tsconfig.json'],
     // sourceType: 'module',
     tsconfigRootDir: __dirname,
   },
@@ -24,4 +24,5 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
   },
+  ignorePatterns: ['.eslintrc.js'],
 };
