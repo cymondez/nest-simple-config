@@ -1,7 +1,7 @@
 {
     "name": "nest-simple-config",
     "version": "2.0.0",
-    "description": "nest-simple-config for nestjs module",
+    "description": "A powerful and flexible configuration management library for NestJS applications. Supports JSON, YAML file loading, environment variable overrides, immutable configurations, and type-safe configuration access with dependency injection.",
     "author": "Cymon Dez",
     "license": "MIT",
     "url": "https://github.com/cymondez/nest-simple-config",
@@ -88,6 +88,29 @@
     "keywords": [
         "nestjs",
         "nest",
-        "config"
+        "config",
+        "configuration",
+        "settings",
+        "environment",
+        "env",
+        "json",
+        "yaml",
+        "yml",
+        "file-config",
+        "config-management",
+        "environment-variables",
+        "app-config",
+        "configuration-loader",
+        "config-service",
+        "immutable-config",
+        "type-safe",
+        "typescript",
+        "dependency-injection",
+        "node",
+        "nodejs",
+        "backend",
+        "server",
+        "microservice",
+        "enterprise"
     ]
 }
