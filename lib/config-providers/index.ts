@@ -4,3 +4,4 @@ export * from './file-config-provider';
 export * from './json-config-provider';
 export * from './yaml-config-provider';
 export * from './default-config-provider';
+export * from './commandline-config-provider';
