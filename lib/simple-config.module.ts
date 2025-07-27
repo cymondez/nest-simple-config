@@ -10,6 +10,7 @@ import { CONFIG_OPTIONAL, CONFIG_OBJECT,
         YamlConfigurationProvider,
         definedProps,
         DefaultSimpleConfigOptions,
+        CommandlineConfigurationProvider,
 } from '.';
 
 import * as _ from 'lodash';
@@ -33,6 +34,7 @@ export class SimpleConfigModule {
             b.add(new JsonConfigurationProvider(path.join(__dirname,'appsettings.json')));
             b.add(new JsonConfigurationProvider(path.join(__dirname,`appsettings.${process.env.NODE_ENV}.json`), true));
             b.add(new EnvConfigurationProvider(defaultOptions.envOptions ));
+            b.add(new CommandlineConfigurationProvider());
         });
 
 
@@ -130,7 +132,8 @@ export class SimpleConfigModule {
             b.options.keyPathDelimiter = _options.keyPathDelimiter;
 
             b.addRange(... generateFileConfigProviders(_options.configFileOptions as ConfigurationFileOptions))
-             .add(new EnvConfigurationProvider(_options.envOptions));
+             .add(new EnvConfigurationProvider(_options.envOptions))
+             .add(new CommandlineConfigurationProvider());
         };
     }
 

@@ -1,15 +1,15 @@
 # 🔧 NestJS Simple Config
 
-**English | [繁體中文](./README.zh-tw.md)**
+**[English](./README.md) | 繁體中文**
 
-> **Note**: This package was previously published as `@mediaedge4tw/nest-simple-config`. It has been moved to this new location due to organizational changes.
+> **注意**: 本套件先前以 `@mediaedge4tw/nest-simple-config` 發布。由於組織變更，已遷移至新位置。
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
 <p align="center">
-  <strong>A powerful, lightweight, and flexible configuration module for NestJS applications</strong>
+  <strong>為 NestJS 應用程式提供強大、輕量且靈活的配置模組</strong>
 </p>
 
 <p align="center">
@@ -27,48 +27,48 @@
   </a>
 </p>
 
-## ✨ Why Choose NestJS Simple Config?
+## ✨ 為什麼選擇 NestJS Simple Config？
 
-Inspired by ASP.NET Core's configuration system, this module brings familiar and powerful configuration management to your NestJS applications:
+靈感來自 ASP.NET Core 的配置系統，此模組為您的 NestJS 應用程式帶來熟悉且強大的配置管理：
 
-### 🚀 **[Simple & Intuitive](#-basic-configuration)**
-- **Easy setup** with JSON and YAML support
-- **Zero learning curve** for developers familiar with ASP.NET Core
-- **Minimal dependencies** and lightweight footprint
+### 🚀 **[簡單直觀](#-基本配置)**
+- **易於設定** 支援 JSON 和 YAML
+- **零學習曲線** 對熟悉 ASP.NET Core 的開發者而言
+- **最小依賴** 和輕量化架構
 
-### 🔄 **[Multi-Configuration Support](#-configuration-override)**
-- **Multiple configuration files** with customizable priority
-- **Environment-specific** configurations (dev, staging, prod)
-- **Flexible override** system for different deployment scenarios
+### 🔄 **[多配置支援](#-配置覆蓋)**
+- **多配置檔案** 具可自定義的優先順序
+- **環境特定** 配置 (dev, staging, prod)
+- **靈活覆蓋** 系統適用於不同部署場景
 
-### 🐳 **[Container-Ready](#-environment-variables-override)**
-- **Perfect for Docker** and Kubernetes deployments
-- **Runtime configuration** override using environment variables
-- **Hierarchical configuration** with dot notation support
-- **Clear priority order**: Command Line → Environment Variables → Configuration Files
+### 🐳 **[容器就緒](#-環境變數覆蓋)**
+- **完美支援 Docker** 和 Kubernetes 部署
+- **執行期配置** 使用環境變數覆蓋
+- **階層式配置** 支援點記法
+- **清晰的優先順序**: 命令列 → 環境變數 → 配置檔案
 
-### 🔒 **[Type-Safe Configuration](#-typed-configuration-options)**
-- **Option injection** for configuration sections
-- **Compile-time type checking** with TypeScript
-- **Runtime validation** using class-validator decorators
+### 🔒 **[型別安全配置](#-型別化配置選項)**
+- **選項注入** 針對配置區段
+- **編譯期型別檢查** 使用 TypeScript
+- **執行期驗證** 使用 class-validator 裝飾器
 
-### 🖥️ **[Command Line Support](#-command-line-configuration)**
-- **Command line argument** parsing for dynamic configuration
-- **Nested configuration** via dot notation (--database.host=localhost)
-- **Array support** with indexed notation (--servers.0.name=web1)
-- **Runtime override** with highest priority for deployment flexibility
+### 🖥️ **[命令列支援](#-命令列配置)**
+- **命令列參數** 解析用於動態配置
+- **巢狀配置** 透過點記法 (--database.host=localhost)
+- **陣列支援** 使用索引記法 (--servers.0.name=web1)
+- **執行期覆蓋** 具最高優先權，適用於部署靈活性
 
-## 📦 Installation
+## 📦 安裝
 
 ```bash
 npm i --save nest-simple-config
 ```
 
-## 🚀 Basic Configuration
+## 🚀 基本配置
 
-### Setup with Configuration Files
+### 使用配置檔案設定
 
-Create your configuration file:
+建立您的配置檔案：
 
 **appsettings.json**
 
@@ -81,8 +81,7 @@ Create your configuration file:
 }
 ```
 
-
-**Import in your AppModule:**
+**在您的 AppModule 中匯入：**
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
@@ -100,40 +99,38 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-**Inject Configuration in your services:**
+**在您的服務中注入配置：**
 
 ```ts
-
 @Injectable()
 export class OtherService {
   constructor(private readonly config: Configuration) {}
 
   getA() {
-    return this.config.get('a'); // got a string: 'base'
+    return this.config.get('a'); // 取得字串: 'base'
   }
 
   getC() {
-    return this.config.get('b.c'); // got a number: 123
+    return this.config.get('b.c'); // 取得數字: 123
   }
 
   getSection() {
-    return this.config.get('b'); // got a object: { c : 123}
+    return this.config.get('b'); // 取得物件: { c : 123}
   }
 }
-
 ```
-## 🐳 Environment Variables Override
 
-Perfect for containerized deployments! Set environment variables to override your configuration at runtime:
+## 🐳 環境變數覆蓋
+
+非常適合容器化部署！設定環境變數在執行期覆蓋您的配置：
 
 ```sh
-# prefix is NestApp, and object path delimiter is '__'
+# 前綴為 NestApp，物件路徑分隔符號為 '__'
 export NestApp__a='env'
 export NestApp__b__c=789
-
 ```
 
-import in AppModule, and set envConfig
+在 AppModule 中匯入，並設定 envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
@@ -146,7 +143,7 @@ import { join } from 'path';
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prefix: 'NestApp', // this is default value
+          prefix: 'NestApp', // 這是預設值
       },
     })
   ],
@@ -154,40 +151,39 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-got override value
+取得覆蓋後的值
 
 ```ts
-
 @Injectable()
 export class OtherService {
   constructor(private readonly config: Configuration) {}
 
   getA() {
-    return this.config.get('a'); // got a string: 'env'
+    return this.config.get('a'); // 取得字串: 'env'
   }
 
   getC() {
-    return this.config.get('b.c'); // got a number: 789
+    return this.config.get('b.c'); // 取得數字: 789
   }
 }
 ```
 
-## 🖥️ Command Line Configuration
+## 🖥️ 命令列配置
 
-**✨ New Feature**: Command line argument support with the highest priority in the configuration hierarchy!
+**✨ 新功能**: 命令列參數支援在配置階層中具有最高優先權！
 
-Perfect for dynamic configuration in CI/CD pipelines, Docker containers, and deployment scripts. Command line arguments automatically override both JSON configuration files and environment variables.
+非常適合在 CI/CD 管線、Docker 容器和部署腳本中進行動態配置。命令列參數會自動覆蓋 JSON 配置檔案和環境變數。
 
-### Basic Command Line Usage
+### 基本命令列使用
 
 ```sh
-# Start your application with command line configuration
+# 使用命令列配置啟動您的應用程式
 node dist/main.js --database.host=prod-server --database.port=5432 --debug=true
 ```
 
-### Nested Configuration Support
+### 巢狀配置支援
 
-Command line arguments support nested objects using dot notation, automatically mapping to your JSON configuration structure:
+命令列參數支援使用點記法的巢狀物件，自動對應到您的 JSON 配置結構：
 
 **appsettings.json**
 ```json
@@ -207,9 +203,9 @@ Command line arguments support nested objects using dot notation, automatically 
 }
 ```
 
-**Command line override:**
+**命令列覆蓋：**
 ```sh
-# Override nested configuration values
+# 覆蓋巢狀配置值
 node dist/main.js \
   --database.host=production-db \
   --database.port=5432 \
@@ -218,9 +214,9 @@ node dist/main.js \
   --server.ssl=true
 ```
 
-### Array Configuration
+### 陣列配置
 
-Configure arrays using indexed notation:
+使用索引記法配置陣列：
 
 **appsettings.json**
 ```json
@@ -230,9 +226,9 @@ Configure arrays using indexed notation:
 }
 ```
 
-**Command line with arrays:**
+**使用陣列的命令列：**
 ```sh
-# Configure arrays with indexed notation
+# 使用索引記法配置陣列
 node dist/main.js \
   --servers.0.name=web1 \
   --servers.0.host=192.168.1.10 \
@@ -245,7 +241,7 @@ node dist/main.js \
   --tags.2=nodejs
 ```
 
-**Result configuration:**
+**結果配置：**
 ```json
 {
   "servers": [
@@ -256,9 +252,9 @@ node dist/main.js \
 }
 ```
 
-### Setup with Command Line Support
+### 使用命令列支援設定
 
-Command line configuration is automatically included when using `forRoot()`:
+使用 `forRoot()` 時會自動包含命令列配置：
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -274,16 +270,16 @@ import { join } from 'path';
       envOptions: {
         prefix: 'App'
       }
-      // Command line provider is automatically included!
+      // 命令列提供者會自動包含！
     })
   ],
 })
 export class AppModule {}
 ```
 
-### Custom Configuration with Builder
+### 使用建構器的自訂配置
 
-For advanced control, use the configuration builder:
+對於進階控制，使用配置建構器：
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -302,20 +298,20 @@ import { join } from 'path';
         .add(new JsonConfigurationProvider(join(__dirname, 'appsettings.json')))
         .add(new JsonConfigurationProvider(join(__dirname, `appsettings.${process.env.NODE_ENV}.json`), true))
         .add(new EnvConfigurationProvider({ prefix: 'App' }))
-        .add(new CommandlineConfigurationProvider()); // Highest priority
+        .add(new CommandlineConfigurationProvider()); // 最高優先權
     })
   ],
 })
 export class AppModule {}
 ```
 
-### Configuration Priority
+### 配置優先順序
 
-Command line arguments have the **highest priority** in the configuration hierarchy:
+命令列參數在配置階層中具有 **最高優先權**：
 
-1. **🥇 Command Line** (`--key=value`) - **Highest Priority**
-2. **🥈 Environment Variables** (`APP__key=value`)
-3. **🥉 Configuration Files** (`appsettings.json`)
+1. **🥇 命令列** (`--key=value`) - **最高優先權**
+2. **🥈 環境變數** (`APP__key=value`)
+3. **🥉 配置檔案** (`appsettings.json`)
 
 ```ts
 @Injectable()
@@ -323,29 +319,29 @@ export class ConfigService {
   constructor(private readonly config: Configuration) {}
 
   getDatabaseHost() {
-    // Priority order: CLI args → ENV vars → JSON files
+    // 優先順序：CLI 參數 → ENV 變數 → JSON 檔案
     return this.config.get('database.host');
   }
 }
 ```
 
-### Boolean and Numeric Values
+### 布林值和數值
 
-Command line arguments are automatically parsed with appropriate types:
+命令列參數會自動解析為適當的型別：
 
 ```sh
-# Boolean flags
+# 布林旗標
 node dist/main.js --debug --verbose=false --production=true
 
-# Numeric values  
+# 數值
 node dist/main.js --port=3000 --timeout=5000 --retries=3
 
-# String values (default)
+# 字串值 (預設)
 node dist/main.js --environment=production --log-level=info
 ```
 
 ```ts
-// Access parsed values with correct types
+// 使用正確型別存取解析後的值
 config.get('debug');        // boolean: true
 config.get('verbose');      // string: "false" 
 config.get('production');   // string: "true"
@@ -354,13 +350,11 @@ config.get('timeout');      // number: 5000
 config.get('environment');  // string: "production"
 ```
 
+## 🔄 配置覆蓋
 
-## 🔄 Configuration Override
+### 陣列覆蓋模式
 
-### Array Override Modes
-
-Choose how arrays are merged when configurations are overridden:
-
+選擇配置被覆蓋時陣列的合併方式：
 
 appsettings.json
 
@@ -377,7 +371,7 @@ appsettings.override.json
 }
 ```
 
-import in AppModule, and set envConfig
+在 AppModule 中匯入，並設定 envConfig
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
@@ -386,12 +380,12 @@ import { join } from 'path';
 @Module({
   imports: [
     SimpleConfigModule.forRoot({
-      arrayMergeMode: 'all', // 'section' or 'all'
+      arrayMergeMode: 'all', // 'section' 或 'all'
       configFileOptions: {
             filename: join(__dirname,'appsettings.json'),
       },
       envOptions: {
-          prefix: 'NestApp', // this is default value
+          prefix: 'NestApp', // 這是預設值
       },
     })
   ],
@@ -399,25 +393,24 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-got override array
+取得覆蓋後的陣列
 
 ```ts
-
 @Injectable()
 export class OtherService {
   constructor(private readonly config: Configuration) {
 
   }
   
-  // if select 'section', ary is [11, 22, 3]
-  // if select 'all', ary is [11, 22]
+  // 如果選擇 'section'，ary 為 [11, 22, 3]
+  // 如果選擇 'all'，ary 為 [11, 22]
   getAry() {
     return this.config.get('ary'); 
   }
 }
-
 ```
-### using ConfigurationBuilder
+
+### 使用 ConfigurationBuilder
 
 ```ts
 import { DynamicModule, Module } from '@nestjs/common';
@@ -435,15 +428,15 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-## 🔒 Typed Configuration Options
+## 🔒 型別化配置選項
 
-> **✨ Enhanced Feature**: Enhanced type safety and validation for your configuration objects.
+> **✨ 增強功能**: 為您的配置物件提供增強的型別安全和驗證。
 
-For applications requiring strong typing and validation, you can use typed configuration options with class-validator decorators.
+對於需要強型別和驗證的應用程式，您可以使用帶有 class-validator 裝飾器的型別化配置選項。
 
-#### Define Configuration Classes
+#### 定義配置類別
 
-First, create configuration classes with validation decorators:
+首先，建立帶有驗證裝飾器的配置類別：
 
 ```ts
 // database-options.ts
@@ -518,9 +511,9 @@ export class ServerOptions {
 }
 ```
 
-#### Configuration File
+#### 配置檔案
 
-Create your configuration file with the corresponding structure:
+建立具有對應結構的配置檔案：
 
 ```json
 // appsettings.json
@@ -546,9 +539,9 @@ Create your configuration file with the corresponding structure:
 }
 ```
 
-#### Register Options in Module
+#### 在模組中註冊選項
 
-Register your typed configuration options in your module:
+在您的模組中註冊型別化配置選項：
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -570,9 +563,9 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-#### Inject Typed Configuration
+#### 注入型別化配置
 
-Use the `@InjectConfig` decorator to inject strongly-typed configuration:
+使用 `@InjectConfig` 裝飾器注入強型別配置：
 
 ```ts
 import { Injectable } from '@nestjs/common';
@@ -599,34 +592,34 @@ export class MyService {
     }
 
     getDatabaseConfig(): DatabaseOptions {
-        return this.dbConfig.value; // Fully typed and validated
+        return this.dbConfig.value; // 完全型別化且已驗證
     }
 }
 ```
 
-#### Benefits
+#### 優勢
 
-- **Type Safety**: Full TypeScript support with compile-time type checking
-- **Validation**: Automatic validation using class-validator decorators
-- **Auto-completion**: IDE support for configuration properties
-- **Runtime Errors**: Clear error messages for invalid configurations
-- **Nested Objects**: Support for complex nested configuration structures
+- **型別安全**: 完整的 TypeScript 支援與編譯期型別檢查
+- **驗證**: 使用 class-validator 裝飾器自動驗證
+- **自動完成**: IDE 對配置屬性的支援
+- **執行期錯誤**: 對無效配置提供清晰的錯誤訊息
+- **巢狀物件**: 支援複雜的巢狀配置結構
 
-## 🤝 Contributing
+## 🤝 貢獻
 
-We welcome contributions! If you have ideas for improvements or find any issues:
+我們歡迎貢獻！如果您有改進想法或發現任何問題：
 
-- 🐛 **Report bugs** by opening an [issue](https://github.com/cymondez/nest-simple-config/issues)
-- 💡 **Suggest features** or improvements
-- 🔧 **Submit pull requests** with bug fixes or new features
+- 🐛 **回報錯誤** 透過開啟 [issue](https://github.com/cymondez/nest-simple-config/issues)
+- 💡 **建議功能** 或改進
+- 🔧 **提交 pull request** 修復錯誤或新功能
 
-## 📧 Support
+## 📧 支援
 
-If you find this package helpful, please consider:
-- ⭐ **Star this repository** on GitHub
-- 📢 **Share it** with other developers
-- 💬 **Report issues** or ask questions in the [Issues](https://github.com/cymondez/nest-simple-config/issues) section
+如果您覺得這個套件有幫助，請考慮：
+- ⭐ **在 GitHub 上給此儲存庫加星**
+- 📢 **與其他開發者分享**
+- 💬 **在 [Issues](https://github.com/cymondez/nest-simple-config/issues) 區段回報問題** 或提問
 
-## License
+## 授權
 
-[MIT licensed](LICENSE).
+[MIT 授權](LICENSE)。
