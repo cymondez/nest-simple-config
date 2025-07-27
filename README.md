@@ -43,11 +43,18 @@ Inspired by ASP.NET Core's configuration system, this module brings familiar and
 - **Perfect for Docker** and Kubernetes deployments
 - **Runtime configuration** override using environment variables
 - **Hierarchical configuration** with dot notation support
+- **Clear priority order**: Command Line → Environment Variables → Configuration Files
 
 ### 🔒 **[Type-Safe Configuration](#-typed-configuration-options)**
 - **Option injection** for configuration sections
 - **Compile-time type checking** with TypeScript
 - **Runtime validation** using class-validator decorators
+
+### 🖥️ **[Command Line Support](#-command-line-configuration)**
+- **Command line argument** parsing for dynamic configuration
+- **Nested configuration** via dot notation (--database.host=localhost)
+- **Array support** with indexed notation (--servers.0.name=web1)
+- **Runtime override** with highest priority for deployment flexibility
 
 ## 📦 Installation
 
@@ -163,6 +170,188 @@ export class OtherService {
 }
 ```
 
+## 🖥️ Command Line Configuration
+
+**✨ New Feature**: Command line argument support with the highest priority in the configuration hierarchy!
+
+Perfect for dynamic configuration in CI/CD pipelines, Docker containers, and deployment scripts. Command line arguments automatically override both JSON configuration files and environment variables.
+
+### Basic Command Line Usage
+
+```sh
+# Start your application with command line configuration
+node dist/main.js --database.host=prod-server --database.port=5432 --debug=true
+```
+
+### Nested Configuration Support
+
+Command line arguments support nested objects using dot notation, automatically mapping to your JSON configuration structure:
+
+**appsettings.json**
+```json
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "credentials": {
+      "username": "dev",
+      "password": "dev123"
+    }
+  },
+  "server": {
+    "port": 3000,
+    "ssl": false
+  }
+}
+```
+
+**Command line override:**
+```sh
+# Override nested configuration values
+node dist/main.js \
+  --database.host=production-db \
+  --database.port=5432 \
+  --database.credentials.username=prod_user \
+  --database.credentials.password=secure_pass \
+  --server.ssl=true
+```
+
+### Array Configuration
+
+Configure arrays using indexed notation:
+
+**appsettings.json**
+```json
+{
+  "servers": [],
+  "tags": ["default"]
+}
+```
+
+**Command line with arrays:**
+```sh
+# Configure arrays with indexed notation
+node dist/main.js \
+  --servers.0.name=web1 \
+  --servers.0.host=192.168.1.10 \
+  --servers.0.port=8080 \
+  --servers.1.name=web2 \
+  --servers.1.host=192.168.1.11 \
+  --servers.1.port=8080 \
+  --tags.0=production \
+  --tags.1=web \
+  --tags.2=nodejs
+```
+
+**Result configuration:**
+```json
+{
+  "servers": [
+    { "name": "web1", "host": "192.168.1.10", "port": 8080 },
+    { "name": "web2", "host": "192.168.1.11", "port": 8080 }
+  ],
+  "tags": ["production", "web", "nodejs"]
+}
+```
+
+### Setup with Command Line Support
+
+Command line configuration is automatically included when using `forRoot()`:
+
+```ts
+import { Module } from '@nestjs/common';
+import { SimpleConfigModule } from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+        filename: join(__dirname, 'appsettings.json')
+      },
+      envOptions: {
+        prefix: 'App'
+      }
+      // Command line provider is automatically included!
+    })
+  ],
+})
+export class AppModule {}
+```
+
+### Custom Configuration with Builder
+
+For advanced control, use the configuration builder:
+
+```ts
+import { Module } from '@nestjs/common';
+import { 
+  SimpleConfigModule, 
+  JsonConfigurationProvider, 
+  EnvConfigurationProvider,
+  CommandlineConfigurationProvider 
+} from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+      builder
+        .add(new JsonConfigurationProvider(join(__dirname, 'appsettings.json')))
+        .add(new JsonConfigurationProvider(join(__dirname, `appsettings.${process.env.NODE_ENV}.json`), true))
+        .add(new EnvConfigurationProvider({ prefix: 'App' }))
+        .add(new CommandlineConfigurationProvider()); // Highest priority
+    })
+  ],
+})
+export class AppModule {}
+```
+
+### Configuration Priority
+
+Command line arguments have the **highest priority** in the configuration hierarchy:
+
+1. **🥇 Command Line** (`--key=value`) - **Highest Priority**
+2. **🥈 Environment Variables** (`APP__key=value`)
+3. **🥉 Configuration Files** (`appsettings.json`)
+
+```ts
+@Injectable()
+export class ConfigService {
+  constructor(private readonly config: Configuration) {}
+
+  getDatabaseHost() {
+    // Priority order: CLI args → ENV vars → JSON files
+    return this.config.get('database.host');
+  }
+}
+```
+
+### Boolean and Numeric Values
+
+Command line arguments are automatically parsed with appropriate types:
+
+```sh
+# Boolean flags
+node dist/main.js --debug --verbose=false --production=true
+
+# Numeric values  
+node dist/main.js --port=3000 --timeout=5000 --retries=3
+
+# String values (default)
+node dist/main.js --environment=production --log-level=info
+```
+
+```ts
+// Access parsed values with correct types
+config.get('debug');        // boolean: true
+config.get('verbose');      // string: "false" 
+config.get('production');   // string: "true"
+config.get('port');         // number: 3000
+config.get('timeout');      // number: 5000
+config.get('environment');  // string: "production"
+```
+
 
 ## 🔄 Configuration Override
 
@@ -246,7 +435,7 @@ export class AppModule {}
 
 ## 🔒 Typed Configuration Options
 
-> **✨ New in version 2.0.0**: Enhanced type safety and validation for your configuration objects.
+> **✨ Enhanced Feature**: Enhanced type safety and validation for your configuration objects.
 
 For applications requiring strong typing and validation, you can use typed configuration options with class-validator decorators.
 
