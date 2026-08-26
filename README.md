@@ -58,6 +58,12 @@ Inspired by ASP.NET Core's configuration system, this module brings familiar and
 - **Array support** with indexed notation (--servers.0.name=web1)
 - **Runtime override** with highest priority for deployment flexibility
 
+### 🗝️ **[OS Secret Configuration](#-os-secret-configuration)**
+- **Store sensitive values** in the OS secret manager via keytar
+- **Safe mapping files** (JSON/YAML/YML) contain only account references, never secret values
+- **Management CLI** for set/get/remove/list/clear of secrets
+- **Local development friendly** while production uses env vars or a dedicated vault
+
 ## 📦 Installation
 
 ```bash
@@ -435,7 +441,218 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-## 🔒 Typed Configuration Options
+## �️ OS Secret Configuration
+
+> **✨ New Feature**: Store sensitive values in the operating system secret manager (macOS Keychain, Windows Credential Vault, Linux libsecret) using [keytar](https://github.com/atom/node-keytar). Mapping files only contain account references, never secret values.
+
+### Why OS Secret Configuration?
+
+Local development often needs secrets (database passwords, API keys) that should **never** be committed to source control. OS secret configuration lets you keep safe, shareable mapping files while the actual values live in your OS credential store.
+
+### Linux Prerequisites
+
+On Linux, `keytar` requires `libsecret` and a D-Bus session:
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install libsecret-1-dev gnome-keyring
+
+# Fedora/RHEL
+sudo dnf install libsecret-devel
+
+# Start a D-Bus session for headless/CI environments
+eval $(dbus-launch --sh-syntax)
+```
+
+### Secret Key File Format
+
+The secret key file maps configuration properties to keytar account names. It supports JSON, YAML, and YML. It contains **only account references**, never secret values.
+
+**appsettings.secrets.json** (JSON)
+
+```json
+{
+  "database": {
+    "username": "database.username",
+    "password": "database.password"
+  },
+  "jwt": {
+    "secret": "jwt.secret"
+  }
+}
+```
+
+**appsettings.secrets.yaml** (YAML)
+
+```yaml
+database:
+  username: database.username
+  password: database.password
+
+jwt:
+  secret: jwt.secret
+```
+
+Both formats produce the same keytar lookup (`service: your-package-name`, `account: database.password`) and resolve into a normal config object:
+
+```json
+{
+  "database": {
+    "username": "actual-username",
+    "password": "actual-secret-value"
+  },
+  "jwt": {
+    "secret": "actual-jwt-secret"
+  }
+}
+```
+
+### Setup with `forRoot()`
+
+```ts
+import { SimpleConfigModule } from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+        filename: join(__dirname, 'appsettings.json'),
+      },
+      secretConfigFileOptions: {
+        filename: join(__dirname, 'appsettings.secrets.json'),
+      },
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+YAML example:
+
+```ts
+SimpleConfigModule.forRoot({
+  secretConfigFileOptions: {
+    fileType: 'yaml',
+    filename: join(__dirname, 'appsettings.secrets.yaml'),
+  },
+});
+```
+
+Override the keytar service (defaults to your `package.json` `name`):
+
+```ts
+SimpleConfigModule.forRoot({
+  secretConfigFileOptions: {
+    filename: join(__dirname, 'appsettings.secrets.json'),
+    service: 'shared-development-secrets',
+  },
+});
+```
+
+### Setup with `forRootWithConfigBuilder()`
+
+```ts
+import {
+  SimpleConfigModule,
+  JsonConfigurationProvider,
+  JsonSecretConfigurationProvider,
+  YamlSecretConfigurationProvider,
+  EnvConfigurationProvider,
+  CommandlineConfigurationProvider,
+} from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+      builder
+        .add(new JsonConfigurationProvider(join(__dirname, 'appsettings.json')))
+        .add(new JsonSecretConfigurationProvider(join(__dirname, 'appsettings.secrets.json')))
+        .add(new EnvConfigurationProvider({ prefix: 'App' }))
+        .add(new CommandlineConfigurationProvider());
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Configuration Priority
+
+When you provide `secretConfigFileOptions`, the default priority under `forRoot()` is:
+
+1. **📁 Configuration Files** (`appsettings*.json` / `.yaml`)
+2. **🗂️ Secret Configuration** (keytar-backed mapping file)
+3. **🌍 Environment Variables** (`APP__key=value`)
+4. **🖥️ Command Line** (`--key=value`) - **Highest**
+
+So secrets override appsettings files, environment variables override secrets, and command-line arguments remain the highest priority.
+
+### File Type Resolution
+
+1. An explicit `fileType` is always honored.
+2. Without `fileType`, the format is inferred from `.json`, `.yaml`, or `.yml`.
+3. A filename without a recognized extension defaults to JSON and appends `.json`.
+4. An explicit `fileType` that conflicts with the extension throws an error.
+
+Defaults:
+
+```ts
+{
+  filename: 'appsettings.secrets',
+  rootPath: '.',
+  fileType: 'json',
+  optional: true,
+}
+```
+
+### Missing Accounts and Files
+
+- **Missing keytar account**: the entry is omitted naturally. It does not throw and does not overwrite an earlier provider with `undefined`.
+- **Optional secret file missing** (`optional: true`, the default): returns an empty object.
+- **Required secret file missing** (`optional: false`): throws a missing-file error.
+
+### Service Resolution
+
+The keytar `service` is resolved in this order:
+
+1. An explicit API/CLI value (`secretConfigFileOptions.service` / `--service`).
+2. The nearest `package.json` `name`, searching upward from `process.cwd()`.
+3. An error when neither is available.
+
+Scoped package names (e.g. `@company/my-api`) are preserved exactly.
+
+### Secret Management CLI
+
+The package installs a `nest-simple-config` CLI for managing secrets:
+
+```bash
+# Save or replace a secret
+nest-simple-config secrets set database.password
+
+# Check whether a secret exists (value is masked by default)
+nest-simple-config secrets get database.password
+nest-simple-config secrets get database.password --reveal
+
+# Remove a single secret
+nest-simple-config secrets remove database.password
+
+# List configured accounts (passwords are never printed)
+nest-simple-config secrets list
+
+# Remove every account for the service
+nest-simple-config secrets clear
+```
+
+Override the service:
+
+```bash
+nest-simple-config secrets set database.password --service shared-development-secrets
+```
+
+When using `set` without a positional value, the CLI reads from hidden input. CLI output never includes secret values except for an explicit `get --reveal`.
+
+## �🔒 Typed Configuration Options
 
 > **✨ Enhanced Feature**: Enhanced type safety and validation for your configuration objects.
 

@@ -1,4 +1,8 @@
 export function definedProps(obj: any) {
+    if (obj === undefined || obj === null) {
+        return {};
+    }
+
     return Object.fromEntries(
         Object.entries(obj)
             .map(([k, v]) => [k, v ? v : undefined]) // 將null轉成undefined

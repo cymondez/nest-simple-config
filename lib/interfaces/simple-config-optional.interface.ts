@@ -1,4 +1,6 @@
 
+import type { SecretStore } from '../secret-store';
+
 export type ArrayMergeMode = 'section' | 'all';
 
 export interface ConfigurationBuilderOption {
@@ -12,6 +14,8 @@ export interface SimpleConfigOptional extends ConfigurationBuilderOption {
 
     configFileOptions?: ConfigurationFileOptions;
 
+    secretConfigFileOptions?: SecretConfigurationFileOptions;
+
     envOptions?: EnvironmentOptions;
 }
 
@@ -22,6 +26,18 @@ export interface ConfigurationFileOptions {
     rootPath?: string; // __dirname
     filename?: string; // appsettings.{}.json
     includeMiddleNames?: string[];
+}
+
+export interface SecretConfigurationFileOptions extends SecretConfigurationProviderOptions {
+    fileType?: FileType;
+    rootPath?: string;
+    filename?: string;
+}
+
+export interface SecretConfigurationProviderOptions {
+    service?: string;
+    optional?: boolean;
+    store?: SecretStore;
 }
 
 export interface EnvironmentOptions {
