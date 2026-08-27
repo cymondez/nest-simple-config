@@ -16,10 +16,10 @@
 			"autoPull": true,
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers-contrib/features/nestjs-cli:2": {
+		"ghcr.io/devcontainers-extra/features/nestjs-cli:2": {
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
+		"ghcr.io/devcontainers-extra/features/zsh-plugins:0": {
 			"plugins": "ssh-agent npm",
 			"omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions",
 			"username": "vscode"
