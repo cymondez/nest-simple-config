@@ -1,6 +1,7 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { CONFIG_OPTIONAL, CONFIG_OBJECT,
         ConfigurationFileOptions, SimpleConfigOptional,
+        SecretConfigurationFileOptions,
         Configuration,
         ConfigurationBuilder,
         ConfigurationBuilderOption,
@@ -11,6 +12,10 @@ import { CONFIG_OPTIONAL, CONFIG_OBJECT,
         definedProps,
         DefaultSimpleConfigOptions,
         CommandlineConfigurationProvider,
+        JsonSecretConfigurationProvider,
+        YamlSecretConfigurationProvider,
+        SecretConfigurationProvider,
+        DefaultSecretFileOptions,
 } from '.';
 
 import * as _ from 'lodash';
@@ -38,8 +43,9 @@ export class SimpleConfigModule {
         });
 
 
-        buildAction(builder)
-        const configObj = builder.build();
+        buildAction(builder);
+        const hasAsyncProviders = builder.hasAsyncProviders();
+        const configObj = hasAsyncProviders ? undefined : builder.build();
         return {
             module: SimpleConfigModule,
             global: true,
@@ -51,7 +57,7 @@ export class SimpleConfigModule {
                 {
                     provide: CONFIG_OBJECT,
                     useFactory: () => {
-                        return configObj;
+                        return hasAsyncProviders ? builder.buildAsync() : configObj;
                     },
                 },
                 {
@@ -65,6 +71,7 @@ export class SimpleConfigModule {
     }
 
     private static mergeDefaultOptional(options?: SimpleConfigOptional): SimpleConfigOptional {
+        const secretStore = options?.secretConfigFileOptions?.store;
         const defaultOptions: SimpleConfigOptional = {
             keyPathDelimiter: '.',
             arrayMergeMode: 'section',
@@ -80,9 +87,19 @@ export class SimpleConfigModule {
             },
         } ;
 
-        options = _.merge(defaultOptions, definedProps(options));
+        const mergedOptions = _.merge(defaultOptions, definedProps(options)) as SimpleConfigOptional;
 
-        return options as SimpleConfigOptional;
+        if (mergedOptions.secretConfigFileOptions) {
+            mergedOptions.secretConfigFileOptions = _.merge(
+                new DefaultSecretFileOptions(),
+                mergedOptions.secretConfigFileOptions,
+            );
+            if (secretStore) {
+                mergedOptions.secretConfigFileOptions.store = secretStore;
+            }
+        }
+
+        return mergedOptions;
     }
 
 
@@ -131,10 +148,48 @@ export class SimpleConfigModule {
             b.options.arrayMergeMode = _options.arrayMergeMode;
             b.options.keyPathDelimiter = _options.keyPathDelimiter;
 
-            b.addRange(... generateFileConfigProviders(_options.configFileOptions as ConfigurationFileOptions))
-             .add(new EnvConfigurationProvider(_options.envOptions))
+            b.addRange(... generateFileConfigProviders(_options.configFileOptions as ConfigurationFileOptions));
+            if (_options.secretConfigFileOptions) {
+                b.add(SimpleConfigModule.createSecretConfigurationProvider(_options.secretConfigFileOptions));
+            }
+            b.add(new EnvConfigurationProvider(_options.envOptions))
              .add(new CommandlineConfigurationProvider());
         };
+    }
+
+    private static createSecretConfigurationProvider(
+        fileOptions: SecretConfigurationFileOptions,
+    ): SecretConfigurationProvider {
+        const filename = fileOptions.filename ?? 'appsettings.secrets.json';
+        const parsedFilename = path.parse(filename);
+        const rawExtension = parsedFilename.ext.toLowerCase();
+        const supportedExtensions = ['.json', '.yaml', '.yml'];
+        const hasSupportedExtension = supportedExtensions.includes(rawExtension);
+        const extension = hasSupportedExtension ? rawExtension : '';
+        const baseName = hasSupportedExtension ? parsedFilename.name : parsedFilename.base;
+        const inferredFileType = extension === '.yaml' || extension === '.yml'
+            ? 'yaml'
+            : 'json';
+
+        if (fileOptions.fileType && extension !== '' && fileOptions.fileType !== inferredFileType) {
+            throw new Error(
+                `Secret configuration file type ${fileOptions.fileType} does not match extension ${extension}.`,
+            );
+        }
+
+        const fileType = fileOptions.fileType ?? inferredFileType;
+        const finalExtension = extension || (fileType === 'yaml' ? '.yaml' : '.json');
+        const rootPath = parsedFilename.dir || fileOptions.rootPath || '.';
+        const fullFilename = path.join(rootPath, `${baseName}${finalExtension}`);
+        const providerOptions = {
+            service: fileOptions.service,
+            optional: fileOptions.optional ?? true,
+            store: fileOptions.store,
+        };
+
+        return fileType === 'yaml'
+            ? new YamlSecretConfigurationProvider(fullFilename, providerOptions)
+            : new JsonSecretConfigurationProvider(fullFilename, providerOptions);
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types

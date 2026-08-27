@@ -1,4 +1,12 @@
-import { EnvironmentOptions, ConfigurationFileOptions, ConfigurationBuilderOption, ArrayMergeMode, FileType, SimpleConfigOptional } from "../interfaces";
+import {
+    EnvironmentOptions,
+    ConfigurationFileOptions,
+    ConfigurationBuilderOption,
+    ArrayMergeMode,
+    FileType,
+    SimpleConfigOptional,
+    SecretConfigurationFileOptions,
+} from "../interfaces";
 
 export class DefaultEnvOptions implements EnvironmentOptions {
     prefix: string =  'NestApp';
@@ -10,6 +18,13 @@ export class DefaultFileOptions implements ConfigurationFileOptions {
     rootPath?: string = '.';
     filename?: string = 'appsettings.json'
     includeMiddleNames?: string[] = [];
+}
+
+export class DefaultSecretFileOptions implements SecretConfigurationFileOptions {
+    fileType?: FileType;
+    rootPath?: string = '.';
+    filename?: string = 'appsettings.secrets.json';
+    optional?: boolean = true;
 }
 
 

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0]
+
+### Added
+- **OS Secret Configuration Support**: Store sensitive values in the operating system secret manager (macOS Keychain, Windows Credential Vault, Linux libsecret) through [keytar](https://github.com/atom/node-keytar)
+  - Secret key files support JSON, YAML, and YML formats and contain only account references, never secret values
+  - `JsonSecretConfigurationProvider` and `YamlSecretConfigurationProvider` concrete providers
+  - Shared `SecretConfigurationProvider` resolves mappings recursively, caches repeated account lookups, omits missing entries, and preserves empty-string secrets
+  - Automatic JSON/YAML/YML file type inference with explicit `fileType`/extension conflict detection
+  - Service resolution: explicit value → nearest `package.json` `name` → error
+  - Provider priority under `forRoot()`: Configuration Files → Secret → Environment Variables → Command Line
+  - `SecretConfigurationFileOptions` added to `SimpleConfigOptional`
+- **Asynchronous Provider Support**: `ConfigurationBuilder.buildAsync()` for providers that return Promises
+  - `AsyncConfigurationProvider` abstract base class
+  - `SimpleConfigModule` uses an async Nest factory when any async provider is present
+  - `build()` rejects async providers and legacy thenables to preserve backward compatibility
+  - Sync and async paths share the same validation and merge strategies
+- **Secret Management CLI**: `nest-simple-config secrets` with `set`, `get`, `remove`/`delete`, `list`, and `clear`
+  - `--service` overrides the keytar service; `--reveal` is required to print a value
+  - CLI output never includes secret values except for explicit `get --reveal`
+
+### Dependencies
+- Added `keytar` as an optional dependency (lazy-loaded; normal imports do not load the native addon)
+
+### Documentation
+- Added OS Secret Configuration section to README with JSON/YAML examples, priority, service defaults, CLI usage, and Linux prerequisites
+
+### Testing
+- Added unit tests for `resolveSecretService`, the secret CLI, async builder edge cases, and provider edge cases
+- Added Nest integration tests for JSON/YAML/YML inference, file-type conflicts, optional/required files, precedence, and builder registration
+
 ## [2.1.0] - 2025-07-27
 
 ### Added

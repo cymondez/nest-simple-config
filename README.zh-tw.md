@@ -58,6 +58,12 @@
 - **陣列支援** 使用索引記法 (--servers.0.name=web1)
 - **執行期覆蓋** 具最高優先權，適用於部署靈活性
 
+### 🗝️ **[OS Secret 配置](#-os-secret-配置)**
+- 將敏感值儲存在作業系統秘密管理員（透過 keytar）
+- 安全的映射檔（JSON/YAML/YML）只含帳號參考，絕不含敏感值
+- 管理 CLI 支援 set/get/remove/list/clear
+- 適用本地開發，正式環境仍用環境變數或專用 vault
+
 ## 📦 安裝
 
 ```bash
@@ -428,7 +434,218 @@ import { join } from 'path';
 export class AppModule {}
 ```
 
-## 🔒 型別化配置選項
+## �️ OS Secret 配置
+
+> **✨ 新功能**: 將敏感值儲存在作業系統秘密管理員（macOS Keychain、Windows 認證保險箱、Linux libsecret）中，透過 [keytar](https://github.com/atom/node-keytar) 存取。映射檔只保存帳號參考，絕不保存敏感值。
+
+### 為什麼使用 OS Secret 配置？
+
+本地開發常需要機密（資料庫密碼、API 金鑰），這些**絕不**應提交到版本控制。OS Secret 配置讓您保留安全、可共享的映射檔，實際值則存於作業系統憑證存放區。
+
+### Linux 前置需求
+
+在 Linux 上，`keytar` 需要 `libsecret` 與 D-Bus 工作階段：
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install libsecret-1-dev gnome-keyring
+
+# Fedora/RHEL
+sudo dnf install libsecret-devel
+
+# 無頭/CI 環境啟動 D-Bus 工作階段
+eval $(dbus-launch --sh-syntax)
+```
+
+### Secret Key 檔案格式
+
+Secret key 檔案將配置屬性對應到 keytar 帳號名稱。支援 JSON、YAML 與 YML。檔案**只含帳號參考**，絕不含敏感值。
+
+**appsettings.secrets.json**（JSON）
+
+```json
+{
+  "database": {
+    "username": "database.username",
+    "password": "database.password"
+  },
+  "jwt": {
+    "secret": "jwt.secret"
+  }
+}
+```
+
+**appsettings.secrets.yaml**（YAML）
+
+```yaml
+database:
+  username: database.username
+  password: database.password
+
+jwt:
+  secret: jwt.secret
+```
+
+兩種格式產生相同的 keytar 查詢（`service: your-package-name`，`account: database.password`），並解析為一般配置物件：
+
+```json
+{
+  "database": {
+    "username": "actual-username",
+    "password": "actual-secret-value"
+  },
+  "jwt": {
+    "secret": "actual-jwt-secret"
+  }
+}
+```
+
+### 使用 `forRoot()` 設定
+
+```ts
+import { SimpleConfigModule } from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRoot({
+      configFileOptions: {
+        filename: join(__dirname, 'appsettings.json'),
+      },
+      secretConfigFileOptions: {
+        filename: join(__dirname, 'appsettings.secrets.json'),
+      },
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+YAML 範例：
+
+```ts
+SimpleConfigModule.forRoot({
+  secretConfigFileOptions: {
+    fileType: 'yaml',
+    filename: join(__dirname, 'appsettings.secrets.yaml'),
+  },
+});
+```
+
+覆蓋 keytar service（預設為您的 `package.json` `name`）：
+
+```ts
+SimpleConfigModule.forRoot({
+  secretConfigFileOptions: {
+    filename: join(__dirname, 'appsettings.secrets.json'),
+    service: 'shared-development-secrets',
+  },
+});
+```
+
+### 使用 `forRootWithConfigBuilder()` 設定
+
+```ts
+import {
+  SimpleConfigModule,
+  JsonConfigurationProvider,
+  JsonSecretConfigurationProvider,
+  YamlSecretConfigurationProvider,
+  EnvConfigurationProvider,
+  CommandlineConfigurationProvider,
+} from 'nest-simple-config';
+import { join } from 'path';
+
+@Module({
+  imports: [
+    SimpleConfigModule.forRootWithConfigBuilder((builder) => {
+      builder
+        .add(new JsonConfigurationProvider(join(__dirname, 'appsettings.json')))
+        .add(new JsonSecretConfigurationProvider(join(__dirname, 'appsettings.secrets.json')))
+        .add(new EnvConfigurationProvider({ prefix: 'App' }))
+        .add(new CommandlineConfigurationProvider());
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### 配置優先順序
+
+當提供 `secretConfigFileOptions` 時，`forRoot()` 的預設優先順序為：
+
+1. **📁 配置檔案**（`appsettings*.json` / `.yaml`）
+2. **🗂️ Secret 配置**（keytar 支撐的映射檔）
+3. **🌍 環境變數**（`APP__key=value`）
+4. **🖥️ 命令列**（`--key=value`）— **最高**
+
+Secret 覆蓋配置檔案，環境變數覆蓋 secret，命令列參數維持最高優先權。
+
+### 檔案類型解析
+
+1. 明確指定 `fileType` 時一律使用指定格式。
+2. 未指定時，從 `.json`、`.yaml` 或 `.yml` 副檔名推斷。
+3. filename 無已識別副檔名時預設使用 JSON 並補上 `.json`。
+4. 明確 `fileType` 與副檔名衝突時拋出錯誤。
+
+預設值：
+
+```ts
+{
+  filename: 'appsettings.secrets',
+  rootPath: '.',
+  fileType: 'json',
+  optional: true,
+}
+```
+
+### 缺少帳號與檔案
+
+- **缺少 keytar 帳號**：自然略過。不報錯，不以 `undefined` 覆蓋較早 provider 的值。
+- **選用的 secret 檔案不存在**（`optional: true`，預設）：回傳空 object。
+- **必要的 secret 檔案不存在**（`optional: false`）：拋出 missing-file 錯誤。
+
+### Service 解析
+
+keytar `service` 依下列順序解析：
+
+1. 明確的 API/CLI 值（`secretConfigFileOptions.service` / `--service`）。
+2. 從 `process.cwd()` 向上尋找最近的 `package.json` `name`。
+3. 兩者皆無時拋出錯誤。
+
+Scoped package 名稱（如 `@company/my-api`）完整保留不改寫。
+
+### Secret 管理 CLI
+
+本套件安裝 `nest-simple-config` CLI 用於管理 secrets：
+
+```bash
+# 儲存或取代 secret
+nest-simple-config secrets set database.password
+
+# 檢查 secret 是否存在（預設遮罩值）
+nest-simple-config secrets get database.password
+nest-simple-config secrets get database.password --reveal
+
+# 移除單一 secret
+nest-simple-config secrets remove database.password
+
+# 列出已設定的帳號（絕不印出密碼）
+nest-simple-config secrets list
+
+# 移除該 service 下全部帳號
+nest-simple-config secrets clear
+```
+
+覆蓋 service：
+
+```bash
+nest-simple-config secrets set database.password --service shared-development-secrets
+```
+
+使用 `set` 但未提供位置參數值時，CLI 會以隱藏輸入讀取。CLI 輸出絕不包含 secret 值，除非明確使用 `get --reveal`。
+
+## �🔒 型別化配置選項
 
 > **✨ 增強功能**: 為您的配置物件提供增強的型別安全和驗證。
 

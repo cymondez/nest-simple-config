@@ -10,3 +10,6 @@ export * from './exceptions';
 export * from './decorators';
 export * from './types/options';
 export * from './config-options.module';
+export * from './secret-store';
+export * from './keytar-secret-store';
+export * from './utils/secret-service-resolver';
